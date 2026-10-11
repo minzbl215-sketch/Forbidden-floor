@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#000">
+<title>Lantai Terlarang — Chapter 1</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Courier New',monospace;color:#c9c9c9;touch-action:none;}
+#app{position:fixed;inset:0;overflow:hidden;background:#000;}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;}
+.screen.active{display:flex;}
+#loading{background:radial-gradient(circle at 50% 40%,#0a0a0a,#000 70%);justify-content:center;align-items:center;}
+.fog{position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(120,120,120,.15),transparent 40%),radial-gradient(circle at 80% 70%,rgba(80,80,80,.12),transparent 40%);animation:fogmove 12s ease-in-out infinite alternate;pointer-events:none;}
+@keyframes fogmove{to{transform:translate(30px,-20px);}}
+.noise{position:absolute;inset:0;pointer-events:none;opacity:.08;background-image:repeating-linear-gradient(0deg,#fff 0 1px,transparent 1px 3px);animation:noiseShift .12s steps(2) infinite;}
+@keyframes noiseShift{to{transform:translateY(3px);}}
+.loading-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:14px;padding:20px;max-width:560px;width:100%;}
+.logo{font-size:26px;letter-spacing:6px;color:#8a1010;text-shadow:0 0 18px #600;text-align:center;animation:glitch 3s infinite;}
+@keyframes glitch{0%,90%,100%{opacity:1;transform:translateX(0);}92%{opacity:.6;transform:translateX(-2px);}94%{transform:translateX(2px);}}
+.logo-sub{font-size:11px;letter-spacing:4px;color:#666;text-align:center;}
+.foto-row{display:flex;gap:18px;justify-content:center;align-items:center;margin:8px 0;}
+.foto-frame{width:100px;height:130px;border:2px solid #333;background:#111;position:relative;overflow:hidden;box-shadow:0 0 20px rgba(0,0,0,.9) inset;}
+.foto-frame img{width:100%;height:100%;object-fit:cover;filter:grayscale(.5) contrast(1.15);}
+.foto-label{position:absolute;bottom:2px;left:4px;font-size:8px;color:#a55;text-shadow:0 0 4px #000;z-index:3;}
+.loading-bar-wrap{width:100%;max-width:380px;height:12px;border:1px solid #333;background:#0a0a0a;}
+.loading-bar{height:100%;width:0%;background:linear-gradient(90deg,#600,#a00,#f22);transition:width .15s;}
+.loading-pct{font-size:12px;color:#888;letter-spacing:2px;}
+.loading-status{font-size:10px;color:#555;letter-spacing:2px;height:14px;}
+.tap-hint{font-size:12px;color:#a55;letter-spacing:3px;animation:blink 1.4s infinite;margin-top:10px;display:none;}
+@keyframes blink{50%{opacity:.25;}}
+#menu{background:linear-gradient(180deg,#050505,#0a0508 60%,#000);justify-content:center;align-items:center;}
+.menu-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.building{position:absolute;bottom:0;left:0;right:0;height:60%;background:linear-gradient(180deg,#0a0a0a,#000);}
+.building::before{content:'';position:absolute;inset:0;background-image:linear-gradient(0deg,transparent 98%,#151515 98%),linear-gradient(90deg,transparent 98%,#151515 98%);background-size:22px 26px;opacity:.5;}
+.rain{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.rain span{position:absolute;top:-20px;width:1px;height:14px;background:linear-gradient(180deg,transparent,#557);animation:fall linear infinite;}
+@keyframes fall{to{transform:translateY(110vh);}}
+.menu-content{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;gap:14px;padding:24px;width:100%;max-width:420px;}
+.menu-title{font-size:28px;letter-spacing:6px;color:#a01414;text-shadow:0 0 22px #500;margin-bottom:-4px;text-align:center;}
+.menu-chapter{font-size:11px;color:#777;letter-spacing:3px;margin-bottom:18px;text-align:center;}
+.btn{width:100%;padding:14px 18px;background:rgba(15,15,18,.85);border:1px solid #333;color:#bbb;font-family:inherit;font-size:15px;letter-spacing:4px;cursor:pointer;text-transform:uppercase;min-height:48px;}
+.btn:active{background:#1a0808;border-color:#a00;color:#f55;}
+.btn.danger{border-color:#5a0f0f;color:#c44;}
+.menu-version{position:absolute;bottom:8px;right:10px;font-size:9px;color:#333;}
+.btn-settings{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:50%;background:rgba(10,10,10,.7);border:1px solid #333;color:#999;font-size:20px;z-index:5;}
+#settings{background:rgba(0,0,0,.95);z-index:50;justify-content:center;align-items:center;padding:16px;}
+.settings-panel{width:100%;max-width:440px;max-height:90vh;overflow-y:auto;background:#0a0a0c;border:1px solid #2a2a2a;padding:16px;}
+.settings-panel h2{font-size:16px;letter-spacing:4px;color:#a33;margin-bottom:14px;text-align:center;}
+.setting-row{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #1a1a1a;}
+.setting-row label{font-size:12px;color:#999;letter-spacing:2px;display:flex;justify-content:space-between;}
+.setting-row input[type=range]{width:100%;height:6px;-webkit-appearance:none;appearance:none;background:#222;outline:none;}
+.setting-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;background:#a22;border-radius:50%;}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;}
+.toggle{width:48px;height:26px;background:#222;border-radius:14px;position:relative;cursor:pointer;border:1px solid #333;}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:#666;border-radius:50%;transition:.2s;}
+.toggle.on{background:#3a0808;border-color:#a22;}
+.toggle.on::after{left:24px;background:#f44;}
+#comic{background:#000;justify-content:center;align-items:center;}
+.comic-stage{position:relative;width:100%;height:100%;display:flex;justify-content:center;align-items:center;padding:12px;padding-bottom:80px;}
+.comic-panel{width:100%;max-width:640px;max-height:75vh;aspect-ratio:4/3;position:relative;border:2px solid #222;background:#0a0a0a;overflow:hidden;}
+.comic-panel svg{width:100%;height:100%;display:block;}
+.comic-text{position:absolute;bottom:0;left:0;right:0;padding:10px 14px;background:linear-gradient(0deg,rgba(0,0,0,.98),transparent);font-size:12px;line-height:1.5;color:#ccc;min-height:70px;z-index:2;}
+.comic-text .speaker{color:#a55;font-weight:bold;}
+.comic-controls{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:space-between;padding:0 16px;z-index:5;gap:8px;}
+.comic-btn{padding:12px 16px;background:rgba(10,10,10,.85);border:1px solid #333;color:#bbb;font-family:inherit;font-size:12px;letter-spacing:3px;min-width:70px;min-height:44px;}
+.comic-btn:active{background:#1a0808;border-color:#a00;color:#f55;}
+.comic-btn:disabled{opacity:.3;}
+.comic-pager{position:absolute;top:10px;right:14px;font-size:11px;color:#555;z-index:5;}
+#game{background:#000;}
+#gameCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
+.hud{position:absolute;z-index:10;pointer-events:none;}
+.hud-obj{top:10px;left:50%;transform:translateX(-50%);font-size:11px;color:#aaa;letter-spacing:2px;background:rgba(0,0,0,.6);padding:5px 10px;border:1px solid #222;max-width:70%;text-align:center;}
+.hud-battery{top:10px;left:10px;font-size:11px;color:#aaa;background:rgba(0,0,0,.6);padding:5px 8px;border:1px solid #222;}
+.hud-battery .bar{display:inline-block;width:60px;height:8px;border:1px solid #666;margin-left:4px;vertical-align:middle;}
+.hud-battery .fill{display:block;height:100%;background:#cc0;transition:width .3s;}
+.battery-low .fill{background:#a22 !important;}
+.hud-interact{bottom:140px;left:50%;transform:translateX(-50%);font-size:13px;color:#eee;letter-spacing:3px;background:rgba(10,10,10,.9);padding:8px 16px;border:1px solid #666;display:none;animation:pulse 1.2s infinite;white-space:nowrap;}
+@keyframes pulse{50%{opacity:.5;}}
+.hud-toast{top:50%;left:50%;transform:translate(-50%,-50%);font-size:13px;color:#ecc;background:rgba(15,0,0,.95);padding:12px 20px;border:1px solid #700;text-align:center;max-width:80%;display:none;z-index:20;}
+.analog-base{position:absolute;bottom:20px;left:20px;width:120px;height:120px;border-radius:50%;background:rgba(20,20,20,.4);border:2px solid rgba(100,100,100,.5);z-index:15;touch-action:none;}
+.analog-knob{position:absolute;top:50%;left:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:radial-gradient(circle,#444,#111);border:2px solid #666;pointer-events:none;}
+.action-buttons{position:absolute;bottom:20px;right:20px;display:grid;grid-template-columns:repeat(2,64px);gap:10px;z-index:15;}
+.act-btn{width:64px;height:64px;border-radius:50%;background:rgba(20,20,20,.75);border:2px solid #555;color:#ccc;font-size:11px;font-family:inherit;display:flex;justify-content:center;align-items:center;flex-direction:column;font-weight:bold;touch-action:none;}
+.act-btn:active{background:#300;border-color:#a22;color:#f66;}
+.act-btn.small{width:52px;height:52px;font-size:9px;}
+.modal{position:absolute;inset:0;background:rgba(0,0,0,.94);z-index:40;display:none;justify-content:center;align-items:center;padding:12px;}
+.modal.active{display:flex;}
+.modal-box{width:100%;max-width:520px;max-height:92vh;overflow-y:auto;background:#0a0a0c;border:1px solid #333;padding:16px;}
+.modal-box h3{font-size:15px;color:#a33;letter-spacing:3px;margin-bottom:12px;text-align:center;text-transform:uppercase;}
+.modal-box p{font-size:13px;line-height:1.6;color:#bbb;margin-bottom:10px;}
+.modal-close{margin-top:14px;width:100%;padding:12px;background:#1a0808;border:1px solid #600;color:#d44;font-family:inherit;letter-spacing:3px;font-size:13px;}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0;}
+.keypad button{padding:18px 0;background:#141414;border:1px solid #333;color:#ccc;font-size:20px;font-family:inherit;}
+.keypad button:active{background:#300;color:#f55;}
+.code-display{text-align:center;font-size:24px;letter-spacing:10px;color:#e88;background:#000;border:1px solid #333;padding:10px;margin-bottom:10px;min-height:48px;line-height:28px;}
+.seq-buttons{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0;}
+.seq-buttons button{padding:16px 0;background:#141414;border:1px solid #333;color:#ccc;font-family:inherit;font-size:13px;}
+.seq-buttons button:active{background:#300;}
+.inv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+.inv-slot{aspect-ratio:1;background:#0f0f12;border:1px solid #333;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:6px;text-align:center;cursor:pointer;}
+.inv-slot.filled{border-color:#666;background:#141418;}
+.inv-slot .icon{font-size:22px;}
+.inv-slot .name{font-size:9px;color:#999;margin-top:4px;}
+.jumpscare{position:absolute;inset:0;z-index:60;background:#000;display:none;justify-content:center;align-items:center;}
+.jumpscare.active{display:flex;}
+.jumpscare svg{width:100%;height:100%;}
+.shake{animation:shake .35s;}
+@keyframes shake{0%,100%{transform:translate(0);}20%{transform:translate(-8px,4px);}40%{transform:translate(7px,-5px);}60%{transform:translate(-6px,-3px);}80%{transform:translate(5px,6px);}}
+#ending{background:#000;z-index:70;justify-content:center;align-items:center;padding:20px;}
+.ending-text{text-align:center;color:#aaa;font-size:14px;letter-spacing:3px;line-height:2;opacity:0;transition:opacity 1.5s;max-width:520px;}
+.ending-text.show{opacity:1;}
+.ending-title{text-align:center;display:none;}
+.ending-title h1{font-size:24px;color:#a01414;letter-spacing:6px;text-shadow:0 0 22px #500;}
+.ending-title h2{font-size:12px;color:#666;letter-spacing:4px;margin-top:8px;}
+.ending-title .sub{font-size:12px;color:#888;margin-top:24px;}
+.ending-title .cont{font-size:13px;color:#a33;letter-spacing:6px;margin-top:20px;animation:blink 2s infinite;}
+#credits{background:#050505;justify-content:flex-start;padding:24px 16px;overflow-y:auto;z-index:75;}
+.credits-inner{max-width:520px;margin:0 auto;text-align:center;color:#999;font-size:13px;line-height:2;}
+.credits-inner h1{color:#a33;font-size:20px;letter-spacing:6px;margin-bottom:6px;}
+.credits-inner h2{color:#666;font-size:12px;letter-spacing:4px;margin-bottom:20px;}
+.credits-inner .sec{margin:14px 0;}
+.credits-inner .role{color:#777;font-size:11px;letter-spacing:4px;}
+.credits-inner .name{color:#ccc;font-size:14px;}
+.credits-btns{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;justify-content:center;padding-bottom:30px;}
+.credits-btns .btn{flex:1;min-width:130px;}
+#rotate{position:fixed;inset:0;background:#000;z-index:200;display:none;justify-content:center;align-items:center;flex-direction:column;color:#a33;letter-spacing:4px;font-size:14px;text-align:center;padding:20px;}
+@media (max-aspect-ratio:1/1){#rotate{display:flex;}}
+.rotate-icon{font-size:60px;animation:rot 2s infinite;margin-bottom:16px;}
+@keyframes rot{50%{transform:rotate(90deg);}}
+@media (max-width:400px){
+  .analog-base{width:105px;height:105px;bottom:14px;left:14px;}
+  .analog-knob{width:46px;height:46px;margin:-23px 0 0 -23px;}
+  .action-buttons{bottom:14px;right:14px;grid-template-columns:repeat(2,56px);}
+  .act-btn{width:56px;height:56px;font-size:10px;}
+  .act-btn.small{width:46px;height:46px;}
+  .menu-title{font-size:22px;}
+  .logo{font-size:20px;}
+  .foto-frame{width:80px;height:104px;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="rotate"><div class="rotate-icon">📱</div>PUTAR PERANGKAT<br><span style="font-size:11px;color:#666;margin-top:10px;">Mode Landscape</span></div>
+
+<!-- LOADING -->
+<div id="loading" class="screen active">
+  <div class="fog"></div><div class="noise"></div>
+  <div class="loading-content">
+    <div class="logo">LANTAI TERLARANG</div>
+    <div class="logo-sub">CHAPTER 1 — PENGHUNI TERAKHIR</div>
+    <div class="foto-row">
+      <div class="foto-frame"><img src="assets/images/foto_pemain.jpg" onerror="this.style.display='none';this.parentNode.style.background='#1a1a1a';this.parentNode.insertAdjacentHTML('beforeend','<div style=\'position:absolute;inset:0;display:flex;justify-content:center;align-items:center;color:#555;font-size:9px;text-align:center;padding:6px;\'>FOTO<br>PEMAIN</div>')"><div class="foto-label">R.</div></div>
+      <div class="foto-frame"><img src="assets/images/foto_misterius.jpg" onerror="this.style.display='none';this.parentNode.style.background='#1a0000';this.parentNode.insertAdjacentHTML('beforeend','<div style=\'position:absolute;inset:0;display:flex;justify-content:center;align-items:center;color:#a33;font-size:9px;text-align:center;padding:6px;\'>FOTO<br>MISTERIUS</div>')"><div class="foto-label">?</div></div>
+    </div>
+    <div class="loading-bar-wrap"><div class="loading-bar" id="loadBar"></div></div>
+    <div class="loading-pct" id="loadPct">0%</div>
+    <div class="loading-status" id="loadStatus">Menyiapkan apartemen...</div>
+    <div class="tap-hint" id="tapHint">▸ KETUK UNTUK MEMULAI ◂</div>
+  </div>
+</div>
+
+<!-- MENU -->
+<div id="menu" class="screen">
+  <div class="menu-bg"><div class="building"></div><div class="rain" id="rainLayer"></div></div>
+  <button class="btn-settings" id="menuSettingsBtn">⚙</button>
+  <div class="menu-content">
+    <div class="menu-title">LANTAI TERLARANG</div>
+    <div class="menu-chapter">CHAPTER 1 — PENGHUNI TERAKHIR</div>
+    <button class="btn" id="btnStart">▶ MULAI GAME</button>
+    <button class="btn" id="btnContinue" style="display:none;">↻ LANJUTKAN</button>
+    <button class="btn danger" id="btnQuit">✕ KELUAR</button>
+  </div>
+  <div class="menu-version">v1.0</div>
+</div>
+
+<!-- SETTINGS -->
+<div id="settings" class="screen">
+  <div class="settings-panel">
+    <h2>⚙ PENGATURAN</h2>
+    <div class="setting-row"><label>MASTER <span id="vMaster">80%</span></label><input type="range" id="sMaster" min="0" max="100" value="80"></div>
+    <div class="setting-row"><label>MUSIC <span id="vMusic">70%</span></label><input type="range" id="sMusic" min="0" max="100" value="70"></div>
+    <div class="setting-row"><label>SFX <span id="vSfx">85%</span></label><input type="range" id="sSfx" min="0" max="100" value="85"></div>
+    <div class="setting-row"><label>AMBIENT <span id="vAmb">75%</span></label><input type="range" id="sAmb" min="0" max="100" value="75"></div>
+    <div class="toggle-row"><span style="font-size:12px;color:#999;">MUTE</span><div class="toggle" id="tMute"></div></div>
+    <div class="toggle-row"><span style="font-size:12px;color:#999;">GETARAN</span><div class="toggle on" id="tVibrate"></div></div>
+    <div class="toggle-row"><span style="font-size:12px;color:#999;">EFEK LAYAR</span><div class="toggle on" id="tHeavyFx"></div></div>
+    <button class="modal-close" id="btnCloseSettings">◀ KEMBALI</button>
+  </div>
+</div>
+
+<!-- COMIC -->
+<div id="comic" class="screen">
+  <div class="comic-stage"><div class="comic-panel" id="comicPanel"></div></div>
+  <div class="comic-pager" id="comicPager">1 / 8</div>
+  <div class="comic-controls">
+    <button class="comic-btn" id="btnComicPrev" disabled>◀</button>
+    <button class="comic-btn" id="btnComicSkip">SKIP</button>
+    <button class="comic-btn" id="btnComicNext">▶</button>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen">
+  <canvas id="gameCanvas"></canvas>
+  <div class="hud hud-battery" id="hudBattery" style="display:none;">🔦 <span class="bar"><span class="fill" id="batteryFill" style="width:100%;"></span></span></div>
+  <div class="hud hud-obj" id="hudObjective" style="display:none;">Tujuan: -</div>
+  <div class="hud hud-interact" id="hudInteract">[ A ]</div>
+  <div class="hud hud-toast" id="hudToast"></div>
+  <div class="analog-base" id="analogBase"><div class="analog-knob" id="analogKnob"></div></div>
+  <div class="action-buttons">
+    <button class="act-btn" id="btnInteract">A</button>
+    <button class="act-btn small" id="btnFlash">🔦</button>
+    <button class="act-btn small" id="btnInv">🎒</button>
+    <button class="act-btn small" id="btnMap">🗺</button>
+    <button class="act-btn small" id="btnPause">⏸</button>
+  </div>
+</div>
+
+<div class="modal" id="modalGeneric"><div class="modal-box" id="modalGenericContent"></div></div>
+<div class="jumpscare" id="jumpscareLayer"></div>
+
+<!-- ENDING -->
+<div id="ending" class="screen">
+  <div class="ending-text" id="endingLine"></div>
+  <div class="ending-title" id="endingTitle">
+    <h1>LANTAI TERLARANG</h1>
+    <h2>CHAPTER 1: PENGHUNI TERAKHIR</h2>
+    <div class="sub">"Peristiwa ini belum berakhir."</div>
+    <div class="cont">BERSAMBUNG...</div>
+  </div>
+</div>
+
+<!-- CREDITS -->
+<div id="credits" class="screen">
+  <div class="credits-inner">
+    <h1>LANTAI TERLARANG</h1>
+    <h2>CHAPTER 1: PENGHUNI TERAKHIR</h2>
+    <div class="sec"><div class="role">CREATED BY</div><div class="name">[NAMA PEMBUAT]</div></div>
+    <div class="sec"><div class="role">STORY & CONCEPT</div><div class="name">[NAMA PEMBUAT]</div></div>
+    <div class="sec"><div class="role">PROGRAMMING</div><div class="name">[NAMA PEMBUAT]</div></div>
+    <div class="sec"><div class="role">ART & SOUND</div><div class="name">Prosedural — Canvas & Web Audio API</div></div>
+    <div class="sec"><div class="role">SPECIAL THANKS</div><div class="name">Kamu yang bertahan sampai akhir.</div></div>
+    <div class="sec" style="margin-top:24px;color:#666;font-size:11px;">Seluruh audio dibuat prosedural via Web Audio API. Tidak ada aset berbayar atau berhak cipta.</div>
+    <div class="sec" style="margin-top:24px;color:#a33;letter-spacing:4px;font-size:13px;">CHAPTER 1 SELESAI<br><span style="color:#666;font-size:11px;">Cerita berlanjut di Chapter 2</span></div>
+    <div class="credits-btns">
+      <button class="btn" id="btnCreditsMenu">MAIN MENU</button>
+      <button class="btn" id="btnCreditsReplay">PLAY AGAIN</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+
+const $ = s => document.querySelector(s);
+const dist = (x1,y1,x2,y2) => Math.hypot(x2-x1,y2-y1);
+const LT = window.LT = {};
+
+/* ============ SAVE ============ */
+LT.Save = (() => {
+  const KEY='lt_save_v1', SET_KEY='lt_settings_v1';
+  let avail = true;
+  try{ localStorage.setItem('_t','1'); localStorage.removeItem('_t'); }catch(e){ avail=false; }
+  return {
+    get(){ if(!avail) return null; try{ return JSON.parse(localStorage.getItem(KEY)); }catch(e){ return null; } },
+    set(d){ if(!avail) return; try{ localStorage.setItem(KEY, JSON.stringify(d)); }catch(e){} },
+    clear(){ if(avail){ try{ localStorage.removeItem(KEY); }catch(e){} } },
+    has(){ const d=this.get(); return d && d.chapter===1; },
+    getSettings(){ if(!avail) return null; try{ return JSON.parse(localStorage.getItem(SET_KEY)); }catch(e){ return null; } },
+    setSettings(s){ if(avail){ try{ localStorage.setItem(SET_KEY, JSON.stringify(s)); }catch(e){} } }
+  };
+})();
+
+/* ============ AUDIO ============ */
+LT.Audio = (() => {
+  let ctx=null, master=null, musicG=null, sfxG=null, ambG=null, unlocked=false;
+  const S = { master:.8, music:.7, sfx:.85, amb:.75, muted:false, vibrate:true, heavyFx:true };
+  let rainSrc=null, droneOsc=null;
+  let musicNodes=[], musicStop=null;
+
+  function init(){
+    if(ctx) return;
+    try{
+      ctx = new (window.AudioContext||window.webkitAudioContext)();
+      master = ctx.createGain(); master.gain.value=S.muted?0:S.master; master.connect(ctx.destination);
+      musicG = ctx.createGain(); musicG.gain.value=S.music; musicG.connect(master);
+      sfxG = ctx.createGain(); sfxG.gain.value=S.sfx; sfxG.connect(master);
+      ambG = ctx.createGain(); ambG.gain.value=S.amb; ambG.connect(master);
+    }catch(e){ console.warn(e); }
+  }
+  function applySaved(){
+    const s = LT.Save.getSettings(); if(s) Object.assign(S,s);
+  }
+  function unlock(){ init(); if(!ctx) return; if(ctx.state==='suspended') ctx.resume(); unlocked=true;
+    try{ const b=ctx.createBuffer(1,1,22050); const src=ctx.createBufferSource(); src.buffer=b; src.connect(ctx.destination); src.start(0); }catch(e){}
+  }
+  function updGains(){ if(!ctx) return; master.gain.value=S.muted?0:S.master; musicG.gain.value=S.music; sfxG.gain.value=S.sfx; ambG.gain.value=S.amb; }
+  function set(k,v){ S[k]=v; updGains(); LT.Save.setSettings(S); }
+  function getS(){ return S; }
+
+  function tone({freq=200,type='sine',dur=.3,vol=.3,dest='sfx',slide=null,delay=0}={}){
+    if(!ctx||!unlocked) return;
+    const t=ctx.currentTime+delay;
+    const o=ctx.createOscillator(); o.type=type; o.frequency.setValueAtTime(freq,t);
+    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(20,slide),t+dur);
+    const g=ctx.createGain(); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+.01); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g); g.connect(dest==='music'?musicG:dest==='amb'?ambG:sfxG);
+    o.start(t); o.stop(t+dur+.05);
+  }
+  function noise({dur=.5,vol=.2,dest='sfx',ff=1000,q=1,delay=0,sweep=null}={}){
+    if(!ctx||!unlocked) return;
+    const t=ctx.currentTime+delay;
+    const len=Math.max(1,Math.floor(ctx.sampleRate*dur));
+    const buf=ctx.createBuffer(1,len,ctx.sampleRate);
+    const d=buf.getChannelData(0); for(let i=0;i<len;i++) d[i]=Math.random()*2-1;
+    const src=ctx.createBufferSource(); src.buffer=buf;
+    const f=ctx.createBiquadFilter(); f.type='lowpass'; f.frequency.setValueAtTime(ff,t); f.Q.value=q;
+    if(sweep) f.frequency.exponentialRampToValueAtTime(Math.max(20,sweep),t+dur);
+    const g=ctx.createGain(); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    src.connect(f); f.connect(g); g.connect(dest==='amb'?ambG:sfxG);
+    src.start(t); src.stop(t+dur+.05);
+  }
+
+  function startRain(){ if(!ctx||!unlocked||rainSrc) return;
+    const len=ctx.sampleRate*2; const buf=ctx.createBuffer(1,len,ctx.sampleRate);
+    const d=buf.getChannelData(0); for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*.5;
+    const s=ctx.createBufferSource(); s.buffer=buf; s.loop=true;
+    const f=ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=1200; f.Q.value=.5;
+    const g=ctx.createGain(); g.gain.value=.22;
+    s.connect(f); f.connect(g); g.connect(ambG); s.start(0); rainSrc=s;
+  }
+  function stopRain(){ if(rainSrc){ try{rainSrc.stop();}catch(e){} rainSrc=null; } }
+  function startDrone(freq=55,vol=.15){
+    if(!ctx||!unlocked||droneOsc) return;
+    droneOsc=ctx.createOscillator(); droneOsc.type='sawtooth'; droneOsc.frequency.value=freq;
+    const f=ctx.createBiquadFilter(); f.type='lowpass'; f.frequency.value=180;
+    const g=ctx.createGain(); g.gain.value=vol;
+    droneOsc.connect(f); f.connect(g); g.connect(ambG); droneOsc.start(0);
+  }
+  function stopDrone(){ if(droneOsc){ try{droneOsc.stop();}catch(e){} droneOsc=null; } }
+  function stopAmb(){ stopRain(); stopDrone(); }
+  function stopMusic(){ if(musicStop) musicStop(); musicNodes.forEach(n=>{try{n.stop();}catch(e){}}); musicNodes=[]; musicStop=null; }
+  function startMenuMusic(){
+    if(!ctx||!unlocked) return; stopMusic();
+    const o=ctx.createOscillator(); o.type='sine'; o.frequency.value=110;
+    const g=ctx.createGain(); g.gain.value=.05;
+    o.connect(g); g.connect(musicG); o.start(0); musicNodes.push(o);
+    let alive=true; musicStop=()=>{alive=false;};
+    function note(){ if(!alive) return; const fr=[220,233.08,261.63,196];
+      tone({freq:fr[Math.floor(Math.random()*fr.length)],type:'triangle',dur:1.2,vol:.05,dest:'music'});
+      setTimeout(note,2500+Math.random()*2500); }
+    setTimeout(note,1500);
+  }
+  function startTensionMusic(){
+    if(!ctx||!unlocked) return; stopMusic();
+    const o1=ctx.createOscillator(); o1.type='sawtooth'; o1.frequency.value=75;
+    const f1=ctx.createBiquadFilter(); f1.type='lowpass'; f1.frequency.value=250;
+    const g1=ctx.createGain(); g1.gain.value=.08;
+    o1.connect(f1); f1.connect(g1); g1.connect(musicG); o1.start(0);
+    const o2=ctx.createOscillator(); o2.type='sine'; o2.frequency.value=37.5;
+    const g2=ctx.createGain(); g2.gain.value=.06;
+    o2.connect(g2); g2.connect(musicG); o2.start(0);
+    musicNodes.push(o1,o2);
+  }
+  function startEndingMusic(){
+    if(!ctx||!unlocked) return; stopMusic();
+    const o1=ctx.createOscillator(); o1.type='sine'; o1.frequency.value=98;
+    const g1=ctx.createGain(); g1.gain.value=.07;
+    o1.connect(g1); g1.connect(musicG); o1.start(0); musicNodes.push(o1);
+    const o2=ctx.createOscillator(); o2.type='sine'; o2.frequency.value=146.83;
+    const g2=ctx.createGain(); g2.gain.value=.05;
+    o2.connect(g2); g2.connect(musicG); o2.start(0); musicNodes.push(o2);
+  }
+
+  const sfx = {
+    click:()=>tone({freq:800,type:'square',dur:.06,vol:.15}),
+    step:()=>noise({dur:.09,vol:.14,ff:600,q:2,sweep:200}),
+    pickup:()=>{tone({freq:500,slide:1200,dur:.25,vol:.25,type:'triangle'});tone({freq:1500,dur:.2,vol:.15,delay:.1});},
+    door:()=>{tone({freq:120,slide:60,dur:.7,vol:.3,type:'sawtooth'});noise({dur:.6,vol:.15,ff:300});},
+    unlock:()=>{tone({freq:400,dur:.15,vol:.25,type:'square'});tone({freq:700,dur:.2,vol:.25,type:'square',delay:.12});},
+    wrong:()=>tone({freq:150,slide:80,dur:.5,vol:.35,type:'sawtooth'}),
+    right:()=>[523,659,784].forEach((f,i)=>tone({freq:f,dur:.25,vol:.2,type:'triangle',delay:i*.08})),
+    whisper:()=>noise({dur:1.2,vol:.08,ff:2000,q:5}),
+    knock:()=>{for(let i=0;i<3;i++)tone({freq:180,type:'square',dur:.08,vol:.3,delay:i*.18});},
+    scream:()=>{ if(!ctx||!unlocked)return;
+      const t=ctx.currentTime;
+      const o=ctx.createOscillator(); o.type='sawtooth'; o.frequency.setValueAtTime(800,t); o.frequency.exponentialRampToValueAtTime(120,t+.8);
+      const g=ctx.createGain(); g.gain.setValueAtTime(.5,t); g.gain.exponentialRampToValueAtTime(.001,t+.9);
+      o.connect(g); g.connect(sfxG); o.start(t); o.stop(t+1);
+      noise({dur:.8,vol:.3,ff:3000,q:2,sweep:400});
+    },
+    static:()=>noise({dur:.5,vol:.2,ff:4000}),
+    heartbeat:()=>{tone({freq:60,dur:.15,vol:.4});tone({freq:55,dur:.2,vol:.35,delay:.25});},
+    thud:()=>tone({freq:80,slide:30,dur:.4,vol:.4})
+  };
+
+  applySaved();
+  return { init, unlock, set, getS, updGains, startRain, stopRain, startDrone, stopDrone, stopAmb,
+    startMenuMusic, startTensionMusic, startEndingMusic, stopMusic, ...sfx };
+})();
+
+/* ============ UI ============ */
+LT.UI = (() => {
+  const S = ['loading','menu','settings','comic','game','ending','credits'];
+  return {
+    show(id){ const e=document.getElementById(id); if(e) e.classList.add('active'); },
+    hide(id){ const e=document.getElementById(id); if(e) e.classList.remove('active'); },
+    hideAll(){ S.forEach(id=>this.hide(id)); },
+    toast(msg,dur=2200){ const t=$('#hudToast'); t.textContent=msg; t.style.display='block';
+      clearTimeout(t._t); t._t=setTimeout(()=>{t.style.display='none';},dur); },
+    modal(html){ $('#modalGenericContent').innerHTML=html; this.show('modalGeneric'); },
+    closeModal(){ this.hide('modalGeneric'); }
+  };
+})();
+
+/* ============ INPUT ============ */
+LT.Input = (() => {
+  const state = { dir:{x:0,y:0}, active:false };
+  let base,knob,baseRect=null,knobStart={x:0,y:0},pointerId=null;
+
+  function init(){
+    base = $('#analogBase'); knob = $('#analogKnob');
+    if(!base) return;
+    const upd=()=>{ baseRect=base.getBoundingClientRect(); };
+    upd(); window.addEventListener('resize',upd); window.addEventListener('orientationchange',()=>setTimeout(upd,300));
+    base.addEventListener('touchstart',start,{passive:false});
+    base.addEventListener('touchmove',move,{passive:false});
+    base.addEventListener('touchend',end,{passive:false});
+    base.addEventListener('touchcancel',end,{passive:false});
+    base.addEventListener('mousedown',e=>{e.preventDefault();startM(e);});
+    window.addEventListener('mousemove',e=>{if(state.active&&pointerId==='m')moveM(e);});
+    window.addEventListener('mouseup',()=>{if(pointerId==='m')end();});
+    const keys={};
+    window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=1;k();});
+    window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=0;k();});
+    function k(){ if(pointerId) return;
+      let x=0,y=0;
+      if(keys['arrowleft']||keys['a'])x--;
+      if(keys['arrowright']||keys['d'])x++;
+      if(keys['arrowup']||keys['w'])y--;
+      if(keys['arrowdown']||keys['s'])y++;
+      const m=Math.hypot(x,y)||1;
+      state.dir.x=x/m; state.dir.y=y/m;
+    }
+  }
+  function start(e){ e.preventDefault(); const t=e.changedTouches[0]; pointerId=t.identifier;
+    baseRect=base.getBoundingClientRect();
+    knobStart={x:baseRect.left+baseRect.width/2,y:baseRect.top+baseRect.height/2};
+    state.active=true; proc(t.clientX,t.clientY);
+  }
+  function move(e){ if(pointerId===null) return; e.preventDefault();
+    for(const t of e.changedTouches){ if(t.identifier===pointerId){ proc(t.clientX,t.clientY); break; } }
+  }
+  function end(e){ if(e)e.preventDefault(); state.active=false; pointerId=null; state.dir.x=0; state.dir.y=0;
+    if(knob) knob.style.transform='translate(0,0)'; }
+  function startM(e){ pointerId='m'; state.active=true;
+    baseRect=base.getBoundingClientRect();
+    knobStart={x:baseRect.left+baseRect.width/2,y:baseRect.top+baseRect.height/2};
+    proc(e.clientX,e.clientY);
+  }
+  function moveM(e){ proc(e.clientX,e.clientY); }
+  function proc(px,py){
+    const dx=px-knobStart.x, dy=py-knobStart.y;
+    const maxR=baseRect.width/2-10;
+    const d=Math.hypot(dx,dy);
+    const cl=Math.min(d,maxR);
+    const nx=d>0?dx/d:0, ny=d>0?dy/d:0;
+    knob.style.transform=`translate(${nx*cl}px,${ny*cl}px)`;
+    const dz=.15;
+    let mx=nx*(cl/maxR), my=ny*(cl/maxR);
+    const mag=Math.hypot(mx,my);
+    if(mag<dz){mx=0;my=0;}
+    else { const s=(mag-dz)/(1-dz); mx=nx*s; my=ny*s; }
+    state.dir.x=mx; state.dir.y=my;
+  }
+  return { init, state };
+})();
+
+/* ============ MAP ============ */
+LT.Map = (() => {
+  const TS=40, W=60, H=40;
+  const grid=[];
+  for(let y=0;y<H;y++){ const r=[]; for(let x=0;x<W;x++){ r.push((x===0||y===0||x===W-1||y===H-1)?1:0); } grid.push(r); }
+  function wall(x,y,w,h){ for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++) if(i>=0&&j>=0&&i<W&&j<H) grid[j][i]=1; }
+  function furn(x,y,w,h){ for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++) if(i>=0&&j>=0&&i<W&&j<H && grid[j][i]===0) grid[j][i]=4; }
+  function set(x,y,v){ if(x>=0&&y>=0&&x<W&&y<H) grid[y][x]=v; }
+
+  // Halaman depan
+  wall(2,2,15,1); wall(2,12,15,1); wall(2,2,1,11);
+  set(8,12,2); set(9,12,3); set(10,12,2);
+  furn(4,7,3,2); furn(15,5,1,2);
+
+  // Lobi
+  wall(18,2,15,1); wall(18,14,15,1); wall(18,2,1,13); wall(32,2,1,13);
+  set(18,8,3);
+  furn(21,4,3,1); furn(20,11,1,1); furn(24,3,1,1); furn(30,4,1,1); furn(29,12,2,1);
+  set(32,6,2);
+
+  // Koridor lantai dasar
+  wall(34,2,22,1); wall(34,10,22,1); wall(34,2,1,9); wall(56,2,1,9);
+  set(34,6,3);
+  set(37,10,2); set(45,10,2); set(52,10,2); set(56,6,2);
+  furn(40,3,2,1); furn(48,3,2,1);
+
+  // Kamar 101
+  wall(34,12,11,1); wall(34,20,11,1); wall(34,12,1,9); wall(44,12,1,9);
+  set(37,12,3);
+  furn(35,14,2,3); furn(42,14,1,2); furn(36,18,3,1); furn(40,18,1,1);
+
+  // Kamar 102
+  wall(46,12,11,1); wall(46,20,11,1); wall(46,12,1,9); wall(56,12,1,9);
+  set(45,12,3);
+  furn(47,14,2,3); furn(53,14,2,1); furn(54,17,1,2); furn(49,18,2,1);
+
+  // Ruang keamanan
+  wall(18,16,15,1); wall(18,26,15,1); wall(18,16,1,11); wall(32,16,1,11);
+  set(32,20,2);
+  furn(20,20,3,1); furn(28,17,2,1); furn(30,22,1,2); furn(19,25,2,1);
+
+  // Gudang
+  wall(34,22,22,1); wall(34,30,22,1); wall(34,22,1,9); wall(56,22,1,9);
+  set(52,22,3);
+  furn(36,24,3,1); furn(36,27,3,1); furn(44,24,3,1); furn(44,27,3,1); furn(50,24,2,2); furn(53,28,1,1);
+  set(42,30,2);
+
+  // Ruangan tersembunyi
+  wall(34,32,11,1); wall(34,38,11,1); wall(34,32,1,7); wall(44,32,1,7);
+  set(42,32,3);
+  furn(37,34,2,1); furn(41,35,1,2); furn(38,36,2,1);
+
+  function tileAt(cx,cy){ const tx=Math.floor(cx/TS), ty=Math.floor(cy/TS);
+    if(tx<0||ty<0||tx>=W||ty>=H) return 1; return grid[ty][tx]; }
+  function isWall(cx,cy){ const t=tileAt(cx,cy); return t===1||t===2||t===4; }
+  function setTile(cx,cy,v){ const tx=Math.floor(cx/TS),ty=Math.floor(cy/TS);
+    if(tx>=0&&ty>=0&&tx<W&&ty<H) grid[ty][tx]=v; }
+
+  return { TS,W,H,grid,isWall,tileAt,setTile,
+    spawn:{ x:7*TS+TS/2, y:14*TS+TS/2 } };
+})();
+
+/* ============ INVENTORY ============ */
+LT.Inventory = (() => {
+  const items=[], byId={};
+  return {
+    add(id,name,icon,desc){ if(byId[id]) return false;
+      const it={id,name,icon,desc}; items.push(it); byId[id]=it; return true; },
+    has(id){ return !!byId[id]; },
+    remove(id){ const i=items.findIndex(x=>x.id===id);
+      if(i>=0){ delete byId[id]; items.splice(i,1); return true; } return false; },
+    all(){ return items.slice(); },
+    get(id){ return byId[id]; }
+  };
+})();
+
+/* ============ PUZZLES ============ */
+LT.Puzzles = (() => {
+  const solved = { lobby:false, archive:false, electric:false, hidden:false };
+  const flags = {};
+  const CODES = { lobby:'1107', archive:'438', hidden:'1549' };
+  const ELECTRIC_SEQ = ['kotak','segitiga','segienam','lingkaran'];
+
+  function openLobby(){
+    LT.Audio.click();
+    let code='';
+    LT.UI.modal(`<div class="modal-box">
+      <h3>🔒 Panel Kode Lobi</h3>
+      <p>Masukkan 4 digit kode akses koridor.</p>
+      <div class="code-display" id="disp">_ _ _ _</div>
+      <div class="keypad" id="pad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button data-k="${n}">${n}</button>`).join('')}<button data-k="C">C</button><button data-k="0">0</button><button data-k="OK">✓</button></div>
+      <button class="modal-close" onclick="LT.UI.closeModal()">BATAL</button>
+    </div>`);
+    const disp=document.getElementById('disp');
+    document.getElementById('pad').addEventListener('click',e=>{
+      const b=e.target.closest('button'); if(!b) return; const k=b.dataset.k;
+      LT.Audio.click();
+      if(k==='C') code='';
+      else if(k==='OK'){
+        if(code===CODES.lobby){
+          solved.lobby=true; LT.Audio.right();
+          LT.Map.setTile(32*40+20,6*40+20,3);
+          LT.UI.closeModal(); LT.UI.toast('Pintu koridor terbuka.');
+          LT.Game.setObjective('Menuju koridor lantai dasar...');
+          LT.Game.saveProgress(); return;
+        } else { LT.Audio.wrong(); code=''; disp.textContent='SALAH'; setTimeout(()=>disp.textContent='_ _ _ _',700); return; }
+      } else if(code.length<4) code+=k;
+      disp.textContent = code.padEnd(4,'_').split('').join(' ');
+    });
+  }
+
+  function openArchive(){
+    if(!LT.Inventory.has('doc_A')||!LT.Inventory.has('doc_B')||!LT.Inventory.has('doc_C')){
+      LT.UI.toast('Kotak terkunci. Butuh 3 dokumen arsip.'); LT.Audio.wrong(); return;
+    }
+    LT.Audio.click();
+    let code='';
+    LT.UI.modal(`<div class="modal-box">
+      <h3>📦 Kotak Arsip</h3>
+      <p>Masukkan 3 digit kode berdasarkan urutan tahun terbaru → terlama.</p>
+      <div class="code-display" id="disp">_ _ _</div>
+      <div class="keypad" id="pad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button data-k="${n}">${n}</button>`).join('')}<button data-k="C">C</button><button data-k="0">0</button><button data-k="OK">✓</button></div>
+      <button class="modal-close" onclick="LT.UI.closeModal()">BATAL</button>
+    </div>`);
+    const disp=document.getElementById('disp');
+    document.getElementById('pad').addEventListener('click',e=>{
+      const b=e.target.closest('button'); if(!b) return; const k=b.dataset.k;
+      LT.Audio.click();
+      if(k==='C') code='';
+      else if(k==='OK'){
+        if(code===CODES.archive){
+          solved.archive=true; LT.Audio.right();
+          LT.Inventory.add('key_emergency','Kunci Darurat','🗝️','Kunci darurat dari kotak arsip.');
+          LT.UI.closeModal(); LT.UI.toast('Menemukan Kunci Darurat.'); return;
+        } else { LT.Audio.wrong(); code=''; disp.textContent='SALAH'; setTimeout(()=>disp.textContent='_ _ _',700); return; }
+      } else if(code.length<3) code+=k;
+      disp.textContent = code.padEnd(3,'_').split('').join(' ');
+    });
+  }
+
+  function openElectric(){
+    if(!LT.Inventory.has('note_electric')){
+      LT.UI.toast('Panel tampak rumit. Cari petunjuk dulu.'); LT.Audio.wrong(); return;
+    }
+    LT.Audio.click();
+    const seq=[];
+    const labels={kotak:'□ Kotak',segitiga:'△ Segitiga',segienam:'⬡ Segienam',lingkaran:'● Lingkaran'};
+    const keys = Object.keys(labels);
+    LT.UI.modal(`<div class="modal-box">
+      <h3>⚡ Panel Listrik</h3>
+      <p>Tekan simbol dalam urutan yang benar.</p>
+      <div class="seq-buttons" id="seqPad">${keys.map(k=>`<button data-k="${k}">${labels[k]}</button>`).join('')}</div>
+      <div style="text-align:center;color:#888;font-size:12px;" id="seqInfo">Urutan: -</div>
+      <button class="modal-close" onclick="LT.UI.closeModal()">BATAL</button>
+    </div>`);
+    const info=document.getElementById('seqInfo');
+    document.getElementById('seqPad').addEventListener('click',e=>{
+      const b=e.target.closest('button'); if(!b) return;
+      LT.Audio.click();
+      seq.push(b.dataset.k);
+      info.textContent = 'Urutan: ' + seq.map(k=>labels[k].split(' ')[0]).join(' ');
+      if(seq.length === ELECTRIC_SEQ.length){
+        const ok = seq.every((v,i)=>v===ELECTRIC_SEQ[i]);
+        if(ok){
+          solved.electric=true; LT.Audio.right();
+          LT.UI.closeModal(); LT.UI.toast('Panel diaktifkan. Lampu berkedip.');
+          LT.Game.setObjective('Cari ruangan tersembunyi di gudang.');
+          LT.Game.saveProgress();
+        } else {
+          LT.Audio.wrong(); seq.length=0; info.textContent='SALAH. Coba lagi.';
+        }
+      }
+    });
+  }
+
+  function openHidden(){
+    // butuh: lobby & archive & electric solved
+    if(!solved.lobby || !solved.archive || !solved.electric){
+      LT.UI.toast('Rantai berkarat. Butuh semua kode sebelumnya.'); LT.Audio.wrong(); return;
+    }
+    LT.Audio.click();
+    let code='';
+    LT.UI.modal(`<div class="modal-box">
+      <h3>🚪 Pintu Besi Tersembunyi</h3>
+      <p>Kunci kombinasi akhir. Gabungkan semua petunjuk.</p>
+      <p style="font-size:11px;color:#666;">Petunjuk: 4 digit = kode lobi + kode arsip + jumlah simbol panel.</p>
+      <div class="code-display" id="disp">_ _ _ _</div>
+      <div class="keypad" id="pad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button data-k="${n}">${n}</button>`).join('')}<button data-k="C">C</button><button data-k="0">0</button><button data-k="OK">✓</button></div>
+      <button class="modal-close" onclick="LT.UI.closeModal()">BATAL</button>
+    </div>`);
+    const disp=document.getElementById('disp');
+    document.getElementById('pad').addEventListener('click',e=>{
+      const b=e.target.closest('button'); if(!b) return; const k=b.dataset.k;
+      LT.Audio.click();
+      if(k==='C') code='';
+      else if(k==='OK'){
+        if(code===CODES.hidden){
+          solved.hidden=true; LT.Audio.right();
+          LT.Map.setTile(42*40+20,30*40+20,3);
+          LT.UI.closeModal(); LT.UI.toast('Pintu tersembunyi terbuka.');
+          LT.Game.setObjective('Masuk ke ruangan tersembunyi.');
+          LT.Game.saveProgress(); return;
+        } else { LT.Audio.wrong(); code=''; disp.textContent='SALAH'; setTimeout(()=>disp.textContent='_ _ _ _',700); return; }
+      } else if(code.length<4) code+=k;
+      disp.textContent = code.padEnd(4,'_').split('').join(' ');
+    });
+  }
+
+  return { solved, flags, CODES, ELECTRIC_SEQ, openLobby, openArchive, openElectric, openHidden };
+})();
+
+/* ============ JUMPSCARES ============ */
+LT.Jumpscares = (() => {
+  const shown = {};
+  let busy=false;
+  function svgFor(kind){
+    const wrap = c => `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">${c}</svg>`;
+    const dark = '<rect width="400" height="300" fill="#000"/>';
+    const nz = '<g opacity=".35">'+Array.from({length:40},()=>`<rect x="${Math.random()*400|0}" y="${Math.random()*300|0}" width="${1+Math.random()*3|0}" height="1" fill="#fff"/>`).join('')+'</g>';
+    if(kind==='shadow') return wrap(`${dark}<ellipse cx="200" cy="250" rx="90" ry="40" fill="#000"/><path d="M200 60 Q170 80 160 140 L155 240 L245 240 L240 140 Q230 80 200 60 Z" fill="#150000" stroke="#300"/><ellipse cx="200" cy="60" rx="32" ry="40" fill="#1a0000"/><ellipse cx="188" cy="58" rx="4" ry="3" fill="#900"/><ellipse cx="212" cy="58" rx="4" ry="3" fill="#900"/>${nz}`);
+    if(kind==='face') return wrap(`${dark}<ellipse cx="200" cy="150" rx="80" ry="100" fill="#1a0505"/><ellipse cx="170" cy="120" rx="14" ry="18" fill="#000"/><ellipse cx="230" cy="120" rx="14" ry="18" fill="#000"/><ellipse cx="170" cy="122" rx="4" ry="4" fill="#c00"/><ellipse cx="230" cy="122" rx="4" ry="4" fill="#c00"/><path d="M170 200 Q200 240 230 200 Q215 220 200 220 Q185 220 170 200 Z" fill="#000"/>${nz}`);
+    if(kind==='door') return wrap(`${dark}<rect x="80" y="20" width="240" height="260" fill="#0a0404" stroke="#400" stroke-width="3"/><rect x="100" y="40" width="200" height="220" fill="#000"/><ellipse cx="200" cy="150" rx="40" ry="60" fill="#1a0000" opacity=".8"/><circle cx="270" cy="150" r="6" fill="#500"/>${nz}`);
+    if(kind==='behind') return wrap(`${dark}<g transform="translate(200,180)"><ellipse rx="60" ry="80" fill="#150505"/><ellipse cy="-60" rx="40" ry="50" fill="#1a0808"/><ellipse cx="-15" cy="-65" rx="5" ry="6" fill="#a00"/><ellipse cx="15" cy="-65" rx="5" ry="6" fill="#a00"/><ellipse cy="-30" rx="6" ry="10" fill="#000"/></g>${nz}`);
+    if(kind==='final') return wrap(`<defs><radialGradient id="rg"><stop offset="0" stop-color="#500"/><stop offset="1" stop-color="#000"/></radialGradient></defs><rect width="400" height="300" fill="url(#rg)"/><g transform="translate(200,170)"><ellipse rx="90" ry="110" fill="#0a0000"/><ellipse cy="-80" rx="55" ry="65" fill="#150505"/><ellipse cx="-22" cy="-85" rx="8" ry="10" fill="#f00"/><ellipse cx="22" cy="-85" rx="8" ry="10" fill="#f00"/><ellipse cx="-22" cy="-85" rx="3" ry="4" fill="#fff"/><ellipse cx="22" cy="-85" rx="3" ry="4" fill="#fff"/><path d="M-25 -30 Q0 10 25 -30 Q20 -10 0 -5 Q-20 -10 -25 -30 Z" fill="#300"/></g>${nz}`);
+    return wrap(dark+nz);
+  }
+  function show(kind, dur=900){
+    if(busy || shown[kind]) return false;
+    busy=true; shown[kind]=true;
+    const layer=$('#jumpscareLayer');
+    layer.innerHTML = svgFor(kind);
+    layer.classList.add('active','shake');
+    const S = LT.Audio.getS();
+    if(S.vibrate && navigator.vibrate){ try{ navigator.vibrate([80,40,200,60,300]); }catch(e){} }
+    LT.Audio.scream();
+    if(kind==='door') setTimeout(()=>LT.Audio.thud(),100);
+    setTimeout(()=>{
+      layer.classList.remove('active','shake');
+      layer.innerHTML='';
+      busy=false;
+    }, dur);
+    return true;
+  }
+  return { show, shown };
+})();
+
+/* ============ OBJECTS ============ */
+LT.Objects = (() => {
+  const TS = 40;
+  const list = [];
+  const add = o => { list.push(o); return o; };
+
+  add({ id:'door_lobby_corridor', x:32*TS+20, y:6*TS+20, r:40, label:'PINTU KORIDOR — TERKUNCI', active:true,
+    onInteract(){ if(LT.Puzzles.solved.lobby){ LT.Map.setTile(32*TS+20,6*TS+20,3); LT.Audio.door(); LT.UI.toast('Pintu terbuka.'); this.active=false; }
+      else { LT.Puzzles.openLobby(); } } });
+
+  add({ id:'desk_lobby', x:22*TS+20, y:4*TS+20, r:50, label:'MEJA RESEPSIONIS', active:true,
+    onInteract(){
+      if(!LT.Inventory.has('note_lobby') && !LT.Puzzles.flags.noteLobby){
+        LT.Puzzles.flags.noteLobby = true;
+        LT.Inventory.add('note_lobby','Catatan Resepsionis','📝','"Kode akses koridor: lihat jam. 11:07."');
+        LT.Audio.pickup(); LT.UI.toast('Catatan: "Kode akses koridor: lihat jam."');
+      } else {
+        LT.UI.modal(`<div class="modal-box"><h3>Meja Resepsionis</h3><p>Buku tamu lapuk. Nama terakhir: <b>Dita Ayu</b> — 3 tahun lalu. Tidak ada catatan keluar.</p><button class="modal-close" onclick="LT.UI.closeModal()">TUTUP</button></div>`);
+      }
+    } });
+
+  add({ id:'clock_lobby', x:22*TS, y:3*TS+20, r:44, label:'JAM DINDING', active:true,
+    onInteract(){
+      LT.UI.modal(`<div class="modal-box"><h3>Jam Dinding</h3><p>Jam berhenti di <b style="color:#d44">11:07</b>. Ada goresan kecil di bawah angka 11.</p><button class="modal-close" onclick="LT.UI.closeModal()">TUTUP</button></div>`);
+      if(!LT.Puzzles.flags.clockRead){ LT.Puzzles.flags.clockRead=true; LT.Audio.whisper(); }
+    } });
+
+  add({ id:'painting_corridor', x:44*TS, y:5*TS, r:44, label:'LUKISAN LAMA', active:true,
+    onInteract(){
+      if(!LT.Inventory.has('note_electric') && !LT.Puzzles.flags.paintingRead){
+        LT.Puzzles.flags.paintingRead=true;
+        LT.Inventory.add('note_electric','Catatan Simbol','📐','"Urutan: kotak, segitiga, segienam, lingkaran."');
+        LT.Audio.pickup();
+      }
+      LT.UI.modal(`<div class="modal-box"><h3>Lukisan Lama</h3><p>Empat simbol: □ △ ⬡ ●</p><p style="color:#888;font-size:12px;">"Hidupkan dalam urutan yang benar."</p><button class="modal-close" onclick="LT.UI.closeModal()">TUTUP</button></div>`);
+    } });
+
+  add({ id:'locker_corridor', x:40*TS+20, y:3*TS+20, r:50, label:'LEMARI PENYIMPANAN', active:true,
+    onInteract(){
+      if(!LT.Inventory.has('doc_A') && !LT.Puzzles.flags.docA){
+        LT.Puzzles.flags.docA=true;
+        LT.Inventory.add('doc_A','Dokumen A','📄','"03-04-2016 — Insiden lantai 4. Kode arsip: 8."');
+        LT.Audio.pickup(); LT.UI.toast('Dokumen A (2016) ditemukan.');
+      } else LT.UI.toast('Sudah kosong.');
+    } });
+
+  add({ id:'cctv', x:28*TS, y:17*TS, r:46, label:'MONITOR CCTV', active:true,
+    onInteract(){
+      LT.Audio.static();
+      if(!LT.Inventory.has('doc_B') && !LT.Puzzles.flags.docB){
+        LT.Puzzles.flags.docB=true;
+        LT.Inventory.add('doc_B','Dokumen B','📄','"17-09-2018 — Penghuni lantai 4 melapor. Kode arsip: 3."');
+        LT.UI.toast('Dokumen B (2018) ditemukan.');
+      }
+      LT.UI.modal(`<div class="modal-box"><h3>Monitor CCTV</h3><p>Rekaman lama: seseorang berdiri di ujung koridor, membelakangi kamera.</p><p style="color:#888;font-size:12px;">Timestamp: 17-09-2018, 02:13.</p><button class="modal-close" onclick="LT.UI.closeModal()">TUTUP</button></div>`);
+    } });
+
+  add({ id:'archive_box', x:30*TS+20, y:22*TS+20, r:46, label:'KOTAK ARSIP', active:true,
+    onInteract(){ LT.Puzzles.openArchive(); } });
+
+  add({ id:'electric_panel', x:19*TS+20, y:25*TS+20, r:46, label:'PANEL LISTRIK', active:true,
+    onInteract(){ LT.Puzzles.openElectric(); } });
+
+  add({ id:'locked_drawer', x:49*TS+20, y:18*TS+20, r:46, label:'LACI TERKUNCI', active:true,
+    onInteract(){
+      if(LT.Inventory.has('key_drawer')){
+        if(!LT.Inventory.has('doc_C') && !LT.Puzzles.flags.docC){
+          LT.Puzzles.flags.docC=true;
+          LT.Inventory.add('doc_C','Dokumen C','📄','"22-12-2019 — Penghuni terakhir. Kode arsip: 4."');
+          LT.Audio.unlock(); LT.UI.toast('Dokumen C (2019) ditemukan.');
+        } else LT.UI.toast('Laci sudah kosong.');
+      } else { LT.UI.toast('Terkunci. Butuh kunci kecil.'); LT.Audio.wrong(); }
+    } });
+
+  add({ id:'small_key', x:42*TS, y:15*TS, r:40, label:'KUNCI KECIL', active:true,
+    onInteract(){
+      if(LT.Inventory.add('key_drawer','Kunci Kecil','🔑','Kunci untuk laci di kamar 102.')){
+        LT.Audio.pickup(); LT.UI.toast('Kunci kecil ditemukan.'); this.active=false;
+      }
+    } });
+
+  add({ id:'family_photo', x:36*TS, y:14*TS, r:44, label:'FOTO KELUARGA', active:true,
+    onInteract(){
+      if(!LT.Inventory.has('photo_family')){
+        LT.Inventory.add('photo_family','Foto Keluarga','📷','Wajah pria digores tajam.');
+        LT.Audio.pickup();
+      }
+      LT.UI.modal(`<div class="modal-box"><h3>Foto Keluarga</h3><p>Foto hitam-putih. Pria dan anak perempuan. Wajah pria digores.</p><button class="modal-close" onclick="LT.UI.closeModal()">TUTUP</button></div>`);
+    } });
+
+  add({ id:'radio', x:40*TS+20, y:18*TS+20, r:42, label:'RADIO TUA', active:true,
+    onInteract(){
+      LT.Audio.static();
+      if(!LT.Puzzles.flags.radioTriggered){
+        LT.Puzzles.flags.radioTriggered=true;
+        setTimeout(()=>LT.Jumpscares.show('behind'), 700);
+      }
+      LT.UI.modal(`<div class="modal-box"><h3>Radio Tua</h3><p>Radio menyala meski tidak tersambung listrik.</p><p style="color:#a55;">"...mereka masih di sini..."</p><button class="modal-close" onclick="LT.UI.closeModal()">TUTUP</button></div>`);
+    } });
+
+  add({ id:'warehouse_note', x:36*TS, y:24*TS, r:44, label:'CATATAN GUDANG', active:true,
+    onInteract(){
+      if(!LT.Inventory.has('note_warehouse')){
+        LT.Inventory.add('note_warehouse','Catatan Gudang','📝','"Kode terakhir: gabungkan semua yang kamu temukan."');
+        LT.Audio.pickup();
+      }
+      LT.UI.modal(`<div class="modal-box"><h3>Catatan Gudang</h3><p>"Untuk membuka ruangan terakhir, gabungkan setiap kode yang sudah kamu temukan. Jangan lupakan simbol terakhir."</p><button class="modal-close" onclick="LT.UI.closeModal()">TUTUP</button></div>`);
+    } });
+
+  add({ id:'door_hidden', x:42*TS+20, y:30*TS+20, r:40, label:'PINTU BESI — TERKUNCI', active:true,
+    onInteract(){ LT.Puzzles.openHidden(); } });
+
+  // Ruangan tersembunyi
+  add({ id:'hidden_photo', x:37*TS, y:34*TS, r:46, label:'FOTO TERSEMBUNYI', active:true,
+    onInteract(){
+      if(!LT.Puzzles.flags.hiddenPhotoRead){
+        LT.Puzzles.flags.hiddenPhotoRead=true; LT.Audio.heartbeat();
+      }
+      LT.UI.modal(`<div class="modal-box"><h3>Foto Tersembunyi</h3><p>Foto berwarna. Dua orang di depan Apartemen Arunika. Salah satunya <b style="color:#d44">kamu</b>.</p><p>Tanggal: <b>2026</b> — dua tahun dari sekarang.</p><button class="modal-close" onclick="LT.UI.closeModal()">TUTUP</button></div>`);
+    } });
+
+  add({ id:'final_recording', x:41*TS, y:35*TS, r:46, label:'REKAMAN SUARA', active:true,
+    onInteract(){
+      LT.UI.modal(`<div class="modal-box"><h3>Rekaman Suara</h3><p style="color:#a55;font-style:italic;">"...kalau kamu dengar ini... berarti kamu sudah kembali. Aku tidak sempat keluar. Tapi kamu... kamu masih di sini. Kamu selalu di sini."</p><p style="color:#a55;font-style:italic;">"Jangan percaya pintu keluar."</p><button class="modal-close" onclick="LT.UI.closeModal()">TUTUP</button></div>`);
+    } });
+
+  add({ id:'final_altar', x:38*TS+20, y:36*TS+20, r:52, label:'MEJA RITUAL', active:true,
+    onInteract(){ LT.Game.triggerEnding(); } });
+
+  function updateProximity(px,py){
+    let best=null, bd=Infinity;
+    for(const o of list){
+      if(!o.active) continue;
+      const d = dist(px,py,o.x,o.y);
+      if(d < o.r && d < bd){ bd=d; best=o; }
+    }
+    return best;
+  }
+
+  return { list, add, updateProximity };
+})();
+
+/* ============ COMIC ============ */
+LT.Comic = (() => {
+  const panels = [
+    { svg:`<rect width="400" height="300" fill="#000"/><rect x="30" y="30" width="340" height="240" fill="#0a0a0a" stroke="#333"/><rect x="100" y="80" width="200" height="140" fill="#151515" stroke="#444"/><circle cx="200" cy="140" r="30" fill="#333"/><rect x="140" y="180" width="120" height="30" fill="#2a2a2a" rx="4"/><text x="200" y="200" fill="#888" font-size="11" font-family="monospace" text-anchor="middle">PESAN MASUK</text>`,
+      text:`<span class="speaker">HP:</span> "Rian, aku di Arunika. Kamu nggak akan percaya apa yang aku temukan. Datang kalau kamu berani." — Dita, 3 tahun lalu` },
+    { svg:`<rect width="400" height="300" fill="#050505"/><rect x="50" y="40" width="300" height="220" fill="#0e0e0e" stroke="#333"/><rect x="70" y="100" width="260" height="120" fill="#151515" stroke="#444"/><text x="200" y="170" fill="#a33" font-size="20" font-family="monospace" text-anchor="middle">APARTEMEN ARUNIKA</text><text x="200" y="195" fill="#666" font-size="10" font-family="monospace" text-anchor="middle">DITUTUP SEJAK 2019</text>`,
+      text:`Foto lama yang kusimpan sejak kecil. Apartemen Arunika — tempat yang selalu disebut orang tuaku dengan bisikan.` },
+    { svg:`<rect width="400" height="300" fill="#0a0a12"/><rect y="200" width="400" height="100" fill="#050510"/><g transform="translate(200,150)"><path d="M-30 80 L-30 30 L-15 0 L15 0 L30 30 L30 80 Z" fill="#1a1a2a" stroke="#333"/><circle cy="-5" r="12" fill="#333"/></g>${Array.from({length:60},()=>`<line x1="${Math.random()*400|0}" y1="${Math.random()*300|0}" x2="${Math.random()*400|0}" y2="${Math.random()*300+10|0}" stroke="#446" stroke-width="1" opacity=".4"/>`).join('')}`,
+      text:`Malam itu hujan turun deras. Aku berdiri di depan gedung yang seharusnya kosong. Tapi... pintu masuknya terbuka.` },
+    { svg:`<rect width="400" height="300" fill="#050505"/><rect x="100" y="30" width="200" height="240" fill="#0a0a0a" stroke="#333"/><rect x="130" y="80" width="140" height="190" fill="#000" stroke="#a33"/>`,
+      text:`Aku masuk. Lorong itu gelap, tapi lampu-lampu tua masih menyala redup. Seperti ada yang menungguku.` },
+    { svg:`<rect width="400" height="300" fill="#0a0a0a"/><rect x="60" y="100" width="280" height="120" fill="#151515" stroke="#333"/><text x="200" y="160" fill="#a55" font-size="14" font-family="monospace" text-anchor="middle">CATATAN KECIL</text><text x="200" y="185" fill="#888" font-size="10" font-family="monospace" text-anchor="middle">"kamar 401... lantai 4..."</text>`,
+      text:`Sebuah catatan tergeletak di lobi. Namaku tertulis di sana. Bersama alamat apartemen ini.` },
+    { svg:`<rect width="400" height="300" fill="#000"/><rect x="200" y="50" width="180" height="200" fill="#1a1a0a" opacity=".4"/><rect x="20" y="50" width="180" height="200" fill="#0a0a0a"/><text x="200" y="160" fill="#cc0" font-size="40" text-anchor="middle">💡</text>`,
+      text:`Lampu lorong menyala sendiri, satu per satu. Menuntunku ke suatu tempat di ujung koridor.` },
+    { svg:`<rect width="400" height="300" fill="#000"/><path d="M180 260 Q170 200 175 150 L225 150 Q230 200 220 260 Z" fill="#150505"/><ellipse cx="200" cy="130" rx="22" ry="28" fill="#1a0808"/>`,
+      text:`Sesosok bayangan berdiri di ujung lorong. Tidak bergerak. Aku berkedip... dan bayangan itu menghilang.` },
+    { svg:`<rect width="400" height="300" fill="#0a0000"/><text x="200" y="130" fill="#a01414" font-size="24" font-family="monospace" text-anchor="middle" letter-spacing="4">LANTAI</text><text x="200" y="170" fill="#a01414" font-size="24" font-family="monospace" text-anchor="middle" letter-spacing="4">TERLARANG</text><text x="200" y="205" fill="#666" font-size="11" font-family="monospace" text-anchor="middle">CHAPTER 1 — PENGHUNI TERAKHIR</text>`,
+      text:`Aku harus menemukan Dita. Apa pun yang terjadi.` }
+  ];
+  let idx = 0;
+  function render(){
+    const panel = panels[idx];
+    const p = $('#comicPanel');
+    p.innerHTML = `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">${panel.svg}</svg><div class="comic-text">${panel.text}</div>`;
+    $('#comicPager').textContent = `${idx+1} / ${panels.length}`;
+    $('#btnComicPrev').disabled = idx===0;
+    $('#btnComicNext').textContent = idx===panels.length-1 ? 'SELESAI' : '▶';
+  }
+  function next(){
+    LT.Audio.click();
+    if(idx < panels.length-1){ idx++; render(); LT.Audio.whisper(); }
+    else { finish(); }
+  }
+  function prev(){ LT.Audio.click(); if(idx>0){ idx--; render(); } }
+  function skip(){ LT.Audio.click(); finish(); }
+  function finish(){
+    LT.UI.hide('comic');
+    LT.Game.start();
+  }
+  function start(){ idx=0; render(); LT.UI.hideAll(); LT.UI.show('comic'); }
+  return { start, next, prev, skip };
+})();
+
+/* ============ PLAYER ============ */
+LT.Player = (() => {
+  const p = {
+    x: LT.Map.spawn.x, y: LT.Map.spawn.y,
+    speed: 130, radius: 12,
+    facing: 'down', animTime: 0,
+    isMoving: false, stepTimer: 0,
+    flashlight: false, battery: 100, hasFlashlight: false
+  };
+  function update(dt){
+    const dir = LT.Input.state.dir;
+    const mag = Math.hypot(dir.x,dir.y);
+    let nx=dir.x, ny=dir.y;
+    if(mag>1){ nx/=mag; ny/=mag; }
+    const spd = p.speed * Math.min(mag,1);
+    const vx = nx*spd, vy = ny*spd;
+    p.isMoving = spd>5;
+    if(p.isMoving){
+      if(Math.abs(nx)>Math.abs(ny)) p.facing = nx>0?'right':'left';
+      else p.facing = ny>0?'down':'up';
+    }
+    const nx2 = p.x + vx*dt;
+    if(!collide(nx2, p.y)) p.x = nx2;
+    const ny2 = p.y + vy*dt;
+    if(!collide(p.x, ny2)) p.y = ny2;
+    if(p.isMoving){
+      p.animTime += dt; p.stepTimer += dt;
+      if(p.stepTimer>0.42){ p.stepTimer=0; LT.Audio.step(); }
+    } else p.stepTimer=0;
+    if(p.flashlight){
+      p.battery = Math.max(0, p.battery - dt*1.2);
+      if(p.battery<=0){ p.flashlight=false; LT.UI.toast('Senter mati. Baterai habis.'); }
+    }
+  }
+  function collide(cx,cy){
+    const r=p.radius;
+    const pts=[[cx-r,cy-r],[cx+r,cy-r],[cx-r,cy+r],[cx+r,cy+r]];
+    for(const [x,y] of pts) if(LT.Map.isWall(x,y)) return true;
+    return false;
+  }
+  function draw(ctx, cam){
+    const sx=p.x-cam.x, sy=p.y-cam.y;
+    ctx.save();
+    ctx.fillStyle='rgba(0,0,0,.6)';
+    ctx.beginPath(); ctx.ellipse(sx,sy+10,14,6,0,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+    const bob = p.isMoving ? Math.sin(p.animTime*12)*1.5 : 0;
+    ctx.save();
+    ctx.translate(sx, sy+bob);
+    const legOff = p.isMoving ? Math.sin(p.animTime*12)*3 : 0;
+    ctx.fillStyle='#222'; ctx.fillRect(-7,6+legOff,5,10); ctx.fillRect(2,6-legOff,5,10);
+    ctx.fillStyle='#3a3a42'; ctx.fillRect(-9,-10,18,18);
+    ctx.fillStyle='#26262c'; ctx.fillRect(-9,-4,18,2);
+    ctx.fillStyle='#c9a077'; ctx.beginPath(); ctx.arc(0,-14,8,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#1a1a1a'; ctx.beginPath(); ctx.arc(0,-16,8,Math.PI,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#000';
+    if(p.facing==='down'){ ctx.fillRect(-3,-15,2,2); ctx.fillRect(1,-15,2,2); }
+    else if(p.facing==='left'){ ctx.fillRect(-5,-15,2,2); }
+    else if(p.facing==='right'){ ctx.fillRect(3,-15,2,2); }
+    ctx.restore();
+  }
+  return { p, update, draw };
+})();
+
+/* ============ GAME LOOP ============ */
+LT.Game = (() => {
+  let canvas, ctx;
+  let running = false, lastT = 0, cam = {x:0,y:0};
+  let currentObj = null;
+  let triggers = {};
+  let objective = '';
+
+  function init(){
+    canvas = $('#gameCanvas');
+    ctx = canvas.getContext('2d');
+    resize();
+    window.addEventListener('resize', resize);
+    window.addEventListener('orientationchange', ()=>setTimeout(resize,200));
+
+    // tombol
+    $('#btnInteract').addEventListener('click', interact);
+    $('#btnFlash').addEventListener('click', toggleFlash);
+    $('#btnInv').addEventListener('click', openInv);
+    $('#btnMap').addEventListener('click', openMap);
+    $('#btnPause').addEventListener('click', openPause);
+    // kunci tombol-tombol game terhadap analog
+    ['#btnInteract','#btnFlash','#btnInv','#btnMap','#btnPause'].forEach(s=>{
+      const el = $(s);
+      el.addEventListener('touchstart', e => e.stopPropagation(), {passive:false});
+    });
+  }
+  function resize(){
+    if(!canvas) return;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  function start(){
+    LT.UI.hideAll();
+    LT.UI.show('game');
+    running = true; lastT = 0;
+    LT.Audio.unlock();
+    LT.Audio.startRain();
+    LT.Audio.startDrone(50, .12);
+    LT.Audio.startTensionMusic();
+    $('#hudObjective').style.display='block';
+    setObjective('Cari Dita. Cari petunjuk di lobi.');
+    if(!LT.Puzzles.flags.firstEntered){
+      LT.Puzzles.flags.firstEntered = true;
+    }
+    requestAnimationFrame(loop);
+  }
+  function loop(t){
+    if(!running) return;
+    if(!lastT) lastT = t;
+    const dt = Math.min(.05, (t-lastT)/1000);
+    lastT = t;
+    update(dt);
+    render();
+    requestAnimationFrame(loop);
+  }
+  function update(dt){
+    LT.Player.update(dt);
+    const p = LT.Player.p;
+    // kamera
+    cam.x = p.x - canvas.width/2;
+    cam.y = p.y - canvas.height/2;
+    // objek proximity
+    const obj = LT.Objects.updateProximity(p.x,p.y);
+    if(obj !== currentObj){
+      currentObj = obj;
+      const h = $('#hudInteract');
+      if(obj){ h.style.display='block'; h.textContent = '[ A ] ' + obj.label; }
+      else h.style.display='none';
+    }
+    // hud baterai
+    if(LT.Player.p.hasFlashlight){
+      $('#hudBattery').style.display='block';
+      $('#batteryFill').style.width = LT.Player.p.battery + '%';
+      $('#hudBattery').classList.toggle('battery-low', LT.Player.p.battery < 25);
+    } else {
+      $('#hudBattery').style.display='none';
+    }
+
+    // TRIGGERS - cek berdasarkan posisi
+    checkTriggers();
+  }
+  function checkTriggers(){
+    const p = LT.Player.p;
+    const TS = 40;
+    // trigger masuk koridor pertama (dari lobi)
+    if(!triggers.corridorEnter && LT.Map.tileAt(34*TS+20, 6*TS+20) === 3 && p.x > 34*TS+40){
+      triggers.corridorEnter = true;
+      setTimeout(()=>LT.Jumpscares.show('shadow'), 600);
+      setTimeout(()=>LT.Audio.knock(), 200);
+    }
+    // trigger masuk kamar 101
+    if(!triggers.room101 && p.x > 34*TS+40 && p.x < 44*TS && p.y > 12*TS+40 && p.y < 20*TS){
+      triggers.room101 = true;
+      setTimeout(()=>LT.Jumpscares.show('face'), 400);
+    }
+    // trigger ruang keamanan
+    if(!triggers.security && p.x > 18*TS+40 && p.x < 32*TS && p.y > 16*TS+40 && p.y < 26*TS){
+      triggers.security = true;
+      LT.Audio.whisper();
+    }
+    // trigger gudang
+    if(!triggers.gudang && p.x > 34*TS+40 && p.x < 56*TS && p.y > 22*TS+40 && p.y < 30*TS){
+      triggers.gudang = true;
+      setTimeout(()=>LT.Jumpscares.show('door'), 700);
+    }
+    // trigger ruangan tersembunyi
+    if(!triggers.hidden && p.x > 34*TS+40 && p.x < 44*TS && p.y > 32*TS+40 && p.y < 38*TS){
+      triggers.hidden = true;
+      LT.Audio.heartbeat();
+    }
+  }
+  function render(){
+    if(!canvas) return;
+    const W = canvas.width, H = canvas.height;
+    ctx.fillStyle = '#050505';
+    ctx.fillRect(0,0,W,H);
+    // tiles
+    const TS = 40;
+    const startX = Math.max(0, Math.floor(cam.x/TS)-1);
+    const startY = Math.max(0, Math.floor(cam.y/TS)-1);
+    const endX = Math.min(LT.Map.W, startX + Math.ceil(W/TS)+2);
+    const endY = Math.min(LT.Map.H, startY + Math.ceil(H/TS)+2);
+    const flashlight = LT.Player.p.flashlight;
+    const px = LT.Player.p.x, py = LT.Player.p.y;
+    for(let y=startY;y<endY;y++){
+      for(let x=startX;x<endX;x++){
+        const t = LT.Map.grid[y][x];
+        const sx = x*TS - cam.x, sy = y*TS - cam.y;
+        if(t===1){
+          // dinding
+          ctx.fillStyle = '#1a1a1f';
+          ctx.fillRect(sx, sy, TS, TS);
+          ctx.fillStyle = '#25252c';
+          ctx.fillRect(sx, sy, TS, 4);
+          ctx.strokeStyle = '#0a0a0d';
+          ctx.strokeRect(sx+.5, sy+.5, TS-1, TS-1);
+        } else if(t===2){
+          // pintu terkunci
+          ctx.fillStyle = '#3a2010';
+          ctx.fillRect(sx, sy, TS, TS);
+          ctx.fillStyle = '#5a3020';
+          ctx.fillRect(sx+4, sy+4, TS-8, TS-8);
+          ctx.fillStyle = '#a55';
+          ctx.fillRect(sx+TS/2-2, sy+TS/2-2, 4, 4);
+        } else if(t===3){
+          // pintu terbuka (lantai)
+          ctx.fillStyle = '#151518';
+          ctx.fillRect(sx, sy, TS, TS);
+          ctx.fillStyle = 'rgba(120,80,50,.3)';
+          ctx.fillRect(sx, sy, TS, 4);
+        } else if(t===4){
+          // furniture
+          ctx.fillStyle = '#0e0e12';
+          ctx.fillRect(sx, sy, TS, TS);
+          ctx.fillStyle = '#22222a';
+          ctx.fillRect(sx+3, sy+3, TS-6, TS-6);
+          ctx.strokeStyle = '#111';
+          ctx.strokeRect(sx+3.5, sy+3.5, TS-7, TS-7);
+        } else {
+          // lantai
+          // cek warna berdasarkan area
+          ctx.fillStyle = '#0d0d10';
+          ctx.fillRect(sx, sy, TS, TS);
+          // grid halus
+          ctx.strokeStyle = 'rgba(30,30,35,.5)';
+          ctx.strokeRect(sx+.5, sy+.5, TS-1, TS-1);
+        }
+      }
+    }
+    // objek dekorasi kecil (bukan collision)
+    // kita gambar beberapa item dekoratif via loop
+
+    // player
+    LT.Player.draw(ctx, cam);
+
+    // flashlight effect (vignette)
+    if(flashlight){
+      const cx = LT.Player.p.x - cam.x;
+      const cy = LT.Player.p.y - cam.y;
+      const grad = ctx.createRadialGradient(cx, cy, 40, cx, cy, 220);
+      grad.addColorStop(0, 'rgba(255,240,180,0.0)');
+      grad.addColorStop(0.5, 'rgba(0,0,0,0.3)');
+      grad.addColorStop(1, 'rgba(0,0,0,0.85)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0,0,W,H);
+    } else {
+      // vignette normal
+      const grad = ctx.createRadialGradient(W/2, H/2, Math.min(W,H)*0.35, W/2, H/2, Math.max(W,H)*0.75);
+      grad.addColorStop(0, 'rgba(0,0,0,0)');
+      grad.addColorStop(1, 'rgba(0,0,0,0.75)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0,0,W,H);
+    }
+
+    // noise ringan
+    if(LT.Audio.getS().heavyFx){
+      ctx.fillStyle = 'rgba(255,255,255,.02)';
+      for(let i=0;i<30;i++){
+        const rx = Math.random()*W|0, ry = Math.random()*H|0;
+        ctx.fillRect(rx,ry,1,1);
+      }
+    }
+  }
+  function interact(){
+    LT.Audio.click();
+    if(currentObj) currentObj.onInteract();
+    else LT.UI.toast('Tidak ada yang bisa diperiksa.');
+  }
+  function toggleFlash(){
+    LT.Audio.click();
+    const p = LT.Player.p;
+    if(!p.hasFlashlight){
+      // cek inventory
+      if(LT.Inventory.has('flashlight')){
+        p.hasFlashlight = true;
+      } else {
+        // kasih senter gratis saat pertama kali (untuk playability)
+        p.hasFlashlight = true;
+        p.battery = 100;
+        LT.Inventory.add('flashlight','Senter Tua','🔦','Baterai terbatas.');
+        LT.UI.toast('Senter aktif. Baterai terbatas.');
+        return;
+      }
+    }
+    if(p.battery <= 0){ LT.UI.toast('Baterai habis.'); return; }
+    p.flashlight = !p.flashlight;
+  }
+  function openInv(){
+    LT.Audio.click();
+    const items = LT.Inventory.all();
+    const slots = [];
+    for(let i=0;i<9;i++){
+      const it = items[i];
+      if(it) slots.push(`<div class="inv-slot filled" data-id="${it.id}"><div class="icon">${it.icon}</div><div class="name">${it.name}</div></div>`);
+      else slots.push(`<div class="inv-slot"></div>`);
+    }
+    LT.UI.modal(`<div class="modal-box">
+      <h3>🎒 Inventaris</h3>
+      <div class="inv-grid">${slots.join('')}</div>
+      <p style="font-size:11px;color:#666;text-align:center;">Ketuk item untuk membaca.</p>
+      <button class="modal-close" onclick="LT.UI.closeModal()">TUTUP</button>
+    </div>`);
+    document.querySelectorAll('#modalGenericContent .inv-slot.filled').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const it = LT.Inventory.get(el.dataset.id);
+        if(it){
+          LT.UI.modal(`<div class="modal-box"><h3>${it.icon} ${it.name}</h3><p>${it.desc}</p><button class="modal-close" onclick="LT.UI.closeModal()">TUTUP</button></div>`);
+        }
+      });
+    });
+  }
+  function openMap(){
+    LT.Audio.click();
+    LT.UI.modal(`<div class="modal-box">
+      <h3>🗺 Peta Apartemen</h3>
+      <svg viewBox="0 0 600 400" style="width:100%;background:#050505;border:1px solid #333;">
+        <!-- halaman depan -->
+        <rect x="20" y="20" width="150" height="110" fill="#0a1a0a" stroke="#333"/>
+        <text x="95" y="80" fill="#666" font-size="10" text-anchor="middle" font-family="monospace">HALAMAN</text>
+        <!-- lobi -->
+        <rect x="180" y="20" width="150" height="130" fill="#1a1a0a" stroke="#333"/>
+        <text x="255" y="90" fill="#aaa" font-size="10" text-anchor="middle" font-family="monospace">LOBI</text>
+        <!-- koridor -->
+        <rect x="340" y="20" width="220" height="90" fill="#1a0a0a" stroke="#333"/>
+        <text x="450" y="70" fill="#aaa" font-size="10" text-anchor="middle" font-family="monospace">KORIDOR</text>
+        <!-- kamar 101 -->
+        <rect x="340" y="120" width="100" height="90" fill="#0a0a1a" stroke="#333"/>
+        <text x="390" y="170" fill="#aaa" font-size="10" text-anchor="middle" font-family="monospace">K.101</text>
+        <!-- kamar 102 -->
+        <rect x="460" y="120" width="100" height="90" fill="#0a0a1a" stroke="#333"/>
+        <text x="510" y="170" fill="#aaa" font-size="10" text-anchor="middle" font-family="monospace">K.102</text>
+        <!-- ruang keamanan -->
+        <rect x="180" y="160" width="150" height="110" fill="#1a0a1a" stroke="#333"/>
+        <text x="255" y="220" fill="#aaa" font-size="10" text-anchor="middle" font-family="monospace">KEAMANAN</text>
+        <!-- gudang -->
+        <rect x="340" y="220" width="220" height="90" fill="#1a1a1a" stroke="#333"/>
+        <text x="450" y="270" fill="#aaa" font-size="10" text-anchor="middle" font-family="monospace">GUDANG</text>
+        <!-- ruangan tersembunyi -->
+        <rect x="340" y="320" width="100" height="60" fill="#2a0a0a" stroke="#a33" stroke-dasharray="3 3"/>
+        <text x="390" y="355" fill="#a33" font-size="10" text-anchor="middle" font-family="monospace">???</text>
+        <!-- player dot -->
+        <circle cx="${20 + (LT.Player.p.x/2400)*580|0}" cy="${20 + (LT.Player.p.y/1600)*380|0}" r="4" fill="#f44"/>
+      </svg>
+      <p style="font-size:11px;color:#888;text-align:center;margin-top:10px;">📍 Titik merah = posisimu sekarang.</p>
+      <button class="modal-close" onclick="LT.UI.closeModal()">TUTUP</button>
+    </div>`);
+  }
+  function openPause(){
+    LT.Audio.click();
+    running = false;
+    LT.UI.modal(`<div class="modal-box">
+      <h3>⏸ PAUSE</h3>
+      <button class="btn" id="btnResume" style="margin-bottom:8px;">▶ LANJUTKAN</button>
+      <button class="btn" id="btnPauseSettings" style="margin-bottom:8px;">⚙ PENGATURAN</button>
+      <button class="btn danger" id="btnPauseMenu">◀ KEMBALI KE MENU</button>
+    </div>`);
+    setTimeout(()=>{
+      const r = document.getElementById('btnResume');
+      const s = document.getElementById('btnPauseSettings');
+      const m = document.getElementById('btnPauseMenu');
+      if(r) r.addEventListener('click', ()=>{ LT.UI.closeModal(); resume(); });
+      if(s) s.addEventListener('click', ()=>{ LT.UI.closeModal(); LT.UI.show('settings'); });
+      if(m) m.addEventListener('click', ()=>{
+        if(confirm('Kembali ke menu utama? Progress tersimpan.')){ LT.UI.closeModal(); goMenu(); }
+      });
+    },50);
+  }
+  function resume(){
+    running = true; lastT = 0;
+    requestAnimationFrame(loop);
+  }
+  function goMenu(){
+    running = false;
+    LT.Audio.stopAmb(); LT.Audio.stopMusic();
+    LT.UI.hideAll(); LT.UI.show('menu');
+    LT.Audio.startMenuMusic();
+    LT.Audio.startRain();
+    refreshMenuButtons();
+  }
+  function setObjective(t){
+    objective = t;
+    $('#hudObjective').textContent = 'Tujuan: ' + t;
+  }
+  function saveProgress(){
+    const d = {
+      chapter:1, progress:'ch1',
+      solved: LT.Puzzles.solved,
+      flags: LT.Puzzles.flags,
+      inventory: LT.Inventory.all().map(i=>({id:i.id,name:i.name,icon:i.icon,desc:i.desc})),
+      player: { x: LT.Player.p.x, y: LT.Player.p.y, battery: LT.Player.p.battery },
+      objective: objective
+    };
+    LT.Save.set(d);
+  }
+  function loadProgress(){
+    const d = LT.Save.get(); if(!d) return false;
+    // puzzle
+    if(d.solved) Object.assign(LT.Puzzles.solved, d.solved);
+    if(d.flags) Object.assign(LT.Puzzles.flags, d.flags);
+    // inventory
+    if(d.inventory) d.inventory.forEach(it => LT.Inventory.add(it.id, it.name, it.icon, it.desc));
+    // player
+    if(d.player){ LT.Player.p.x = d.player.x; LT.Player.p.y = d.player.y; LT.Player.p.battery = d.player.battery; }
+    // buka pintu-pintu jika puzzle sudah solved
+    if(LT.Puzzles.solved.lobby) LT.Map.setTile(32*40+20, 6*40+20, 3);
+    if(LT.Puzzles.solved.hidden) LT.Map.setTile(42*40+20, 30*40+20, 3);
+    // set objective
+    if(LT.Puzzles.solved.hidden) setObjective('Masuk ke ruangan tersembunyi.');
+    else if(LT.Puzzles.solved.electric) setObjective('Cari ruangan tersembunyi di gudang.');
+    else if(LT.Puzzles.solved.lobby) setObjective('Cari petunjuk di koridor dan ruangan.');
+    return true;
+  }
+
+  /* ============ ENDING ============ */
+  function triggerEnding(){
+    running = false;
+    LT.Audio.stopAmb(); LT.Audio.stopMusic();
+
+    // Fase 1: jumpscare besar
+    setTimeout(()=>{
+      LT.Jumpscares.show('final', 1200);
+      LT.Audio.startEndingMusic();
+      setTimeout(()=>{
+        // Fase 2: narasi
+        LT.UI.hideAll();
+        LT.UI.show('ending');
+        runEndingSequence();
+      }, 1400);
+    }, 200);
+  }
+  function runEndingSequence(){
+    const line = $('#endingLine');
+    const title = $('#endingTitle');
+    line.style.opacity = '1';
+    const steps = [
+      { t:'Ruangan itu ternyata ada di lantai 4. Lantai yang menurut arsip resmi "tidak pernah ada".', d:3200 },
+      { t:'Kamu menemukan foto lama — wajahmu terpampang di sana. Bertanggal dua tahun dari sekarang.', d:3200 },
+      { t:'Rekaman suara Dita memenuhi ruangan: "Jangan percaya pintu keluar."', d:3000 },
+      { t:'Saat kamu berbalik, semua lampu padam. Suara langkah kaki terdengar dari arah yang barusan kamu periksa.', d:3400 },
+      { t:'Kamu berlari ke pintu keluar. Kamu membukanya. Yang kamu temukan: lorong apartemen yang sama. Tidak ada jalan keluar.', d:3800 },
+      { t:'Di ujung lorong, sesosok bayangan berdiri. Tidak bergerak. Ketika kamu mendekat, lampu berkedip — dan sosok itu menghilang.', d:3800 },
+      { t:'Sebuah pesan baru terukir di dinding: "APA YANG TERJADI DI ARUNIKA HANYALAH AWAL."', d:3600 },
+      { t:'Dan di dinding sebelahnya, sebuah pintu. Berlabel: "R. — LANTAI 4".', d:3400 },
+      { t:'Pintu itu belum pernah ada sebelumnya.', d:3000 }
+    ];
+    let i=0;
+    function nextStep(){
+      if(i >= steps.length){
+        line.style.opacity='0';
+        setTimeout(()=>{
+          line.style.display='none';
+          title.style.display='block';
+          setTimeout(()=>{
+            // Credits setelah jeda
+            LT.UI.hideAll(); LT.UI.show('credits');
+          }, 6000);
+        }, 500);
+        return;
+      }
+      line.textContent = steps[i].t;
+      line.classList.add('show');
+      LT.Audio.heartbeat();
+      const dur = steps[i].d;
+      i++;
+      setTimeout(()=>{ line.classList.remove('show'); setTimeout(nextStep, 400); }, dur);
+    }
+    setTimeout(nextStep, 500);
+  }
+
+  /* ============ MENU BUTTONS ============ */
+  function refreshMenuButtons(){
+    const btn = $('#btnContinue');
+    if(LT.Save.has()) btn.style.display='block';
+    else btn.style.display='none';
+  }
+
+  function bindMenu(){
+    $('#btnStart').addEventListener('click', ()=>{
+      LT.Audio.unlock();
+      LT.Save.clear();
+      // reset state
+      LT.Puzzles.solved.lobby = false;
+      LT.Puzzles.solved.archive = false;
+      LT.Puzzles.solved.electric = false;
+      LT.Puzzles.solved.hidden = false;
+      LT.Puzzles.flags = {};
+      Object.keys(LT.Jumpscares.shown).forEach(k=>delete LT.Jumpscares.shown[k]);
+      triggers = {};
+      LT.Player.p.x = LT.Map.spawn.x;
+      LT.Player.p.y = LT.Map.spawn.y;
+      LT.Player.p.battery = 100;
+      LT.Player.p.flashlight = false;
+      LT.Player.p.hasFlashlight = false;
+      LT.Audio.stopMusic();
+      LT.Comic.start();
+    });
+    $('#btnContinue').addEventListener('click', ()=>{
+      LT.Audio.unlock();
+      if(loadProgress()){
+        LT.UI.hideAll();
+        LT.Game.start();
+      }
+    });
+    $('#btnQuit').addEventListener('click', ()=>{
+      LT.Audio.click();
+      if(confirm('Keluar dari game? Tutup tab browser untuk keluar.')){
+        try{ window.close(); }catch(e){}
+        setTimeout(()=>{
+          LT.UI.modal(`<div class="modal-box">
+            <h3>Keluar</h3>
+            <p>Browser tidak mengizinkan penutupan tab otomatis. Silakan tutup tab secara manual.</p>
+            <button class="modal-close" onclick="LT.UI.closeModal()">MENGERTI</button>
+          </div>`);
+        }, 300);
+      }
+    });
+    $('#menuSettingsBtn').addEventListener('click', ()=>{
+      LT.Audio.click();
+      LT.UI.show('settings');
+    });
+    $('#btnCloseSettings').addEventListener('click', ()=>{
+      LT.Audio.click();
+      LT.UI.hide('settings');
+      // kalau sedang tidak main, kembali ke menu atau game
+      if($('#menu').classList.contains('active')){}
+      else if($('#game').classList.contains('active')){ /* biarkan */ }
+      else { LT.UI.show('menu'); }
+    });
+
+    // Settings sliders
+    const mapS = { sMaster:'master', sMusic:'music', sSfx:'sfx', sAmb:'amb' };
+    const mapV = { sMaster:'vMaster', sMusic:'vMusic', sSfx:'vSfx', sAmb:'vAmb' };
+    Object.keys(mapS).forEach(id=>{
+      const el = document.getElementById(id);
+      el.addEventListener('input', ()=>{
+        const v = parseInt(el.value,10)/100;
+        LT.Audio.set(mapS[id], v);
+        document.getElementById(mapV[id]).textContent = el.value + '%';
+      });
+    });
+    // toggle
+    function toggle(id, key, onClass){
+      const el = document.getElementById(id);
+      el.addEventListener('click', ()=>{
+        el.classList.toggle('on');
+        const on = el.classList.contains('on');
+        LT.Audio.set(key, on);
+        LT.Audio.click();
+      });
+    }
+    // mute terbalik: on = muted
+    $('#tMute').addEventListener('click', ()=>{
+      const el = $('#tMute');
+      el.classList.toggle('on');
+      LT.Audio.set('muted', el.classList.contains('on'));
+    });
+    toggle('tVibrate','vibrate');
+    toggle('tHeavyFx','heavyFx');
+
+    // isi nilai awal dari settings tersimpan
+    setTimeout(()=>{
+      const S = LT.Audio.getS();
+      $('#sMaster').value = S.master*100|0;
+      $('#vMaster').textContent = (S.master*100|0)+'%';
+      $('#sMusic').value = S.music*100|0;
+      $('#vMusic').textContent = (S.music*100|0)+'%';
+      $('#sSfx').value = S.sfx*100|0;
+      $('#vSfx').textContent = (S.sfx*100|0)+'%';
+      $('#sAmb').value = S.amb*100|0;
+      $('#vAmb').textContent = (S.amb*100|0)+'%';
+      if(S.muted) $('#tMute').classList.add('on');
+      else $('#tMute').classList.remove('on');
+      $('#tVibrate').classList.toggle('on', !!S.vibrate);
+      $('#tHeavyFx').classList.toggle('on', !!S.heavyFx);
+    }, 100);
+  }
+
+  return { init, start, goMenu, interact, toggleFlash, openInv, openMap, openPause,
+    setObjective, saveProgress, loadProgress, triggerEnding, refreshMenuButtons, bindMenu };
+})();
+
+/* ============ LOADING FLOW ============ */
+LT.Loading = (() => {
+  let pct = 0;
+  function run(){
+    const steps = [
+      'Menyiapkan apartemen...',
+      'Memuat foto penghuni...',
+      'Menyusun lorong...',
+      'Merekam bisikan...',
+      'Menyalakan lampu redup...',
+      'Menyiapkan sesuatu...'
+    ];
+    const int = setInterval(()=>{
+      pct += 3 + Math.random()*4;
+      if(pct >= 100){ pct = 100; clearInterval(int); onDone(); }
+      $('#loadBar').style.width = pct + '%';
+      $('#loadPct').textContent = Math.floor(pct) + '%';
+      const si = Math.min(steps.length-1, Math.floor(pct/100*steps.length));
+      $('#loadStatus').textContent = steps[si];
+    }, 90);
+  }
+  function onDone(){
+    $('#loadStatus').textContent = 'Selesai.';
+    $('#tapHint').style.display = 'block';
+    const startOnce = () => {
+      document.removeEventListener('click', startOnce);
+      document.removeEventListener('touchstart', startOnce);
+      LT.Audio.unlock();
+      goMenu();
+    };
+    document.addEventListener('click', startOnce, {once:true});
+    document.addEventListener('touchstart', startOnce, {once:true});
+  }
+  function goMenu(){
+    LT.UI.hideAll();
+    LT.UI.show('menu');
+    LT.Audio.startMenuMusic();
+    LT.Audio.startRain();
+    LT.Game.refreshMenuButtons();
+  }
+  return { run };
+})();
+
+/* ============ MENU RAIN EFFECT ============ */
+function initRain(){
+  const r = document.getElementById('rainLayer');
+  if(!r) return;
+  for(let i=0;i<40;i++){
+    const s = document.createElement('span');
+    s.style.left = Math.random()*100 + '%';
+    s.style.animationDuration = (0.4 + Math.random()*0.6) + 's';
+    s.style.animationDelay = (Math.random()*2) + 's';
+    s.style.opacity = 0.3 + Math.random()*0.5;
+    r.appendChild(s);
+  }
+}
+
+/* ============ CREDITS BUTTONS ============ */
+function bindCredits(){
+  $('#btnCreditsMenu').addEventListener('click', ()=>{
+    LT.Audio.click();
+    LT.Audio.stopMusic(); LT.Audio.stopAmb();
+    LT.UI.hideAll(); LT.UI.show('menu');
+    LT.Audio.startMenuMusic(); LT.Audio.startRain();
+    LT.Game.refreshMenuButtons();
+  });
+  $('#btnCreditsReplay').addEventListener('click', ()=>{
+    LT.Audio.click();
+    LT.Save.clear();
+    LT.Audio.stopMusic(); LT.Audio.stopAmb();
+    LT.UI.hideAll(); LT.UI.show('menu');
+    LT.Audio.startMenuMusic(); LT.Audio.startRain();
+    LT.Game.refreshMenuButtons();
+  });
+}
+
+/* ============ COMIC BUTTONS ============ */
+function bindComic(){
+  $('#btnComicNext').addEventListener('click', ()=>LT.Comic.next());
+  $('#btnComicPrev').addEventListener('click', ()=>LT.Comic.prev());
+  $('#btnComicSkip').addEventListener('click', ()=>LT.Comic.skip());
+}
+
+/* ============ BOOT ============ */
+window.addEventListener('DOMContentLoaded', ()=>{
+  LT.Input.init();
+  LT.Game.init();
+  LT.Game.bindMenu();
+  bindComic();
+  bindCredits();
+  initRain();
+  LT.Loading.run();
+});
+
+// Esc handler untuk tutup modal
+window.addEventListener('keydown', e=>{
+  if(e.key === 'Escape') LT.UI.closeModal();
+});
+
+})();
+</script>
+</body>
+</html>
