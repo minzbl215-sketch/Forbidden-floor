@@ -1,4 +1,4 @@
-const CACHE_NAME = 'forbidden-floor-v1';
+const CACHE_NAME = 'forbidden-floor-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -9,7 +9,16 @@ const ASSETS = [
   './icons/icon-maskable-512.png',
   './icons/apple-touch-icon.png',
   './assets/images/foto_pemain.jpg',
-  './assets/images/foto_misterius.jpg'
+  './assets/images/foto_misterius.jpg',
+  './assets/audio/rain.mp3',
+  './assets/audio/rain_thunder.mp3',
+  './assets/audio/drone.mp3',
+  './assets/audio/whisper.mp3',
+  './assets/audio/scream.mp3',
+  './assets/audio/click.mp3',
+  './assets/audio/pickup.mp3',
+  './assets/audio/door.mp3',
+  './assets/audio/step.mp3'
 ];
 
 // Install: simpan file ke cache

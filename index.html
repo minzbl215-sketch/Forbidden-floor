@@ -290,6 +290,51 @@ LT.Audio = (() => {
   let ctx=null, master=null, musicG=null, sfxG=null, ambG=null, unlocked=false;
   const S = { master:.8, music:.7, sfx:.85, amb:.75, muted:false, vibrate:true, heavyFx:true };
   let rainSrc=null, droneOsc=null;
+  let rainSynth=false, droneSynth=false, droneArgs=[55,.15], thunderT=null;
+
+  /* ---- Sample mp3 (assets/audio/). Kalau file belum ada, otomatis pakai suara synth ---- */
+  const SAMPLE_FILES=['rain','rain_thunder','drone','whisper','scream','click','pickup','door','step'];
+  const buffers={}; let samplesLoading=false;
+  function loadSamples(){
+    if(!ctx||samplesLoading) return; samplesLoading=true;
+    SAMPLE_FILES.forEach(n=>{
+      fetch('assets/audio/'+n+'.mp3').then(r=>{ if(!r.ok) throw new Error('404'); return r.arrayBuffer(); })
+        .then(ab=>new Promise((res,rej)=>ctx.decodeAudioData(ab,res,rej)))
+        .then(b=>{
+          buffers[n]=b;
+          if(n==='rain' && rainSrc && rainSynth){ stopRain(); startRain(); }
+          if(n==='drone' && droneOsc && droneSynth){ stopDrone(); startDrone(...droneArgs); }
+          if(n==='rain_thunder' && rainSrc && !thunderT){ scheduleThunder(); }
+        }).catch(()=>{});
+    });
+  }
+  function playSample(n,{vol=1,loop=false,dest='sfx',maxDur=0}={}){
+    const b=buffers[n]; if(!b||!ctx||!unlocked) return null;
+    const t=ctx.currentTime;
+    const s=ctx.createBufferSource(); s.buffer=b; s.loop=loop;
+    const g=ctx.createGain(); g.gain.setValueAtTime(vol,t);
+    if(maxDur && !loop && b.duration>maxDur){
+      g.gain.setValueAtTime(vol,t+Math.max(0,maxDur-.15)); g.gain.linearRampToValueAtTime(0.0001,t+maxDur);
+      s.start(t); s.stop(t+maxDur+.02);
+    } else s.start(t);
+    s.connect(g); g.connect(dest==='amb'?ambG:sfxG);
+    return s;
+  }
+  function scheduleThunder(){
+    clearTimeout(thunderT);
+    if(!rainSrc) { thunderT=null; return; }
+    thunderT=setTimeout(()=>{
+      if(rainSrc && buffers.rain_thunder && ctx){
+        const b=buffers.rain_thunder, t=ctx.currentTime, dur=Math.min(10,b.duration);
+        const off=Math.random()*Math.max(0,b.duration-dur);
+        const s=ctx.createBufferSource(); s.buffer=b;
+        const g=ctx.createGain(); g.gain.setValueAtTime(.0001,t);
+        g.gain.linearRampToValueAtTime(.7,t+1.5); g.gain.setValueAtTime(.7,t+Math.max(1.5,dur-2)); g.gain.linearRampToValueAtTime(.0001,t+dur);
+        s.connect(g); g.connect(ambG); s.start(t,off,dur);
+      }
+      scheduleThunder();
+    }, 25000+Math.random()*35000);
+  }
   let musicNodes=[], musicStop=null;
 
   function init(){
@@ -300,6 +345,7 @@ LT.Audio = (() => {
       musicG = ctx.createGain(); musicG.gain.value=S.music; musicG.connect(master);
       sfxG = ctx.createGain(); sfxG.gain.value=S.sfx; sfxG.connect(master);
       ambG = ctx.createGain(); ambG.gain.value=S.amb; ambG.connect(master);
+      loadSamples();
     }catch(e){ console.warn(e); }
   }
   function applySaved(){
@@ -336,6 +382,8 @@ LT.Audio = (() => {
   }
 
   function startRain(){ if(!ctx||!unlocked||rainSrc) return;
+    if(buffers.rain){ rainSrc=playSample('rain',{vol:.6,loop:true,dest:'amb'}); rainSynth=false; scheduleThunder(); return; }
+    rainSynth=true;
     const len=ctx.sampleRate*2; const buf=ctx.createBuffer(1,len,ctx.sampleRate);
     const d=buf.getChannelData(0); for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*.5;
     const s=ctx.createBufferSource(); s.buffer=buf; s.loop=true;
@@ -343,9 +391,12 @@ LT.Audio = (() => {
     const g=ctx.createGain(); g.gain.value=.22;
     s.connect(f); f.connect(g); g.connect(ambG); s.start(0); rainSrc=s;
   }
-  function stopRain(){ if(rainSrc){ try{rainSrc.stop();}catch(e){} rainSrc=null; } }
+  function stopRain(){ clearTimeout(thunderT); thunderT=null; if(rainSrc){ try{rainSrc.stop();}catch(e){} rainSrc=null; } }
   function startDrone(freq=55,vol=.15){
     if(!ctx||!unlocked||droneOsc) return;
+    droneArgs=[freq,vol];
+    if(buffers.drone){ droneOsc=playSample('drone',{vol:.5,loop:true,dest:'amb'}); droneSynth=false; return; }
+    droneSynth=true;
     droneOsc=ctx.createOscillator(); droneOsc.type='sawtooth'; droneOsc.frequency.value=freq;
     const f=ctx.createBiquadFilter(); f.type='lowpass'; f.frequency.value=180;
     const g=ctx.createGain(); g.gain.value=vol;
@@ -407,6 +458,13 @@ LT.Audio = (() => {
     heartbeat:()=>{tone({freq:60,dur:.15,vol:.4});tone({freq:55,dur:.2,vol:.35,delay:.25});},
     thud:()=>tone({freq:80,slide:30,dur:.4,vol:.4})
   };
+
+  /* sfx pakai mp3 kalau sudah ada, kalau belum pakai synth lama */
+  const SMP={ click:[.6,.6], step:[.5,.7], pickup:[.8,2], door:[.8,3.5], whisper:[.7,4], scream:[.9,3.5] };
+  Object.keys(SMP).forEach(k=>{
+    const fb=sfx[k];
+    sfx[k]=()=>{ if(buffers[k]) playSample(k,{vol:SMP[k][0],maxDur:SMP[k][1]}); else fb(); };
+  });
 
   applySaved();
   return { init, unlock, set, getS, updGains, startRain, stopRain, startDrone, stopDrone, stopAmb,
