@@ -753,7 +753,7 @@ LT.Objects = (() => {
         LT.Inventory.add('note_lobby','Catatan Resepsionis','📝','"Kode akses koridor: lihat jam. 11:07."');
         LT.Audio.pickup(); LT.UI.toast('Catatan: "Kode akses koridor: lihat jam."');
       } else {
-        LT.UI.modal(`<div class="modal-box"><h3>Meja Resepsionis</h3><p>Buku tamu lapuk. Nama terakhir: <b>Dita Ayu</b> — 3 tahun lalu. Tidak ada catatan keluar.</p><button class="modal-close" onclick="LT.UI.closeModal()">TUTUP</button></div>`);
+        LT.UI.modal(`<div class="modal-box"><h3>Meja Resepsionis</h3><p>Buku tamu lapuk. Nama terakhir: <b>Yura</b> — 3 tahun lalu. Tidak ada catatan keluar.</p><button class="modal-close" onclick="LT.UI.closeModal()">TUTUP</button></div>`);
       }
     } });
 
@@ -882,7 +882,7 @@ LT.Objects = (() => {
 LT.Comic = (() => {
   const panels = [
     { svg:`<rect width="400" height="300" fill="#000"/><rect x="30" y="30" width="340" height="240" fill="#0a0a0a" stroke="#333"/><rect x="100" y="80" width="200" height="140" fill="#151515" stroke="#444"/><circle cx="200" cy="140" r="30" fill="#333"/><rect x="140" y="180" width="120" height="30" fill="#2a2a2a" rx="4"/><text x="200" y="200" fill="#888" font-size="11" font-family="monospace" text-anchor="middle">PESAN MASUK</text>`,
-      text:`<span class="speaker">HP:</span> "Rian, aku di Arunika. Kamu nggak akan percaya apa yang aku temukan. Datang kalau kamu berani." — Dita, 3 tahun lalu` },
+      text:`<span class="speaker">HP:</span> "Ray, aku di Arunika. Kamu nggak akan percaya apa yang aku temukan. Datang kalau kamu berani." — Yura, 3 tahun lalu` },
     { svg:`<rect width="400" height="300" fill="#050505"/><rect x="50" y="40" width="300" height="220" fill="#0e0e0e" stroke="#333"/><rect x="70" y="100" width="260" height="120" fill="#151515" stroke="#444"/><text x="200" y="170" fill="#a33" font-size="20" font-family="monospace" text-anchor="middle">APARTEMEN ARUNIKA</text><text x="200" y="195" fill="#666" font-size="10" font-family="monospace" text-anchor="middle">DITUTUP SEJAK 2019</text>`,
       text:`Foto lama yang kusimpan sejak kecil. Apartemen Arunika — tempat yang selalu disebut orang tuaku dengan bisikan.` },
     { svg:`<rect width="400" height="300" fill="#0a0a12"/><rect y="200" width="400" height="100" fill="#050510"/><g transform="translate(200,150)"><path d="M-30 80 L-30 30 L-15 0 L15 0 L30 30 L30 80 Z" fill="#1a1a2a" stroke="#333"/><circle cy="-5" r="12" fill="#333"/></g>${Array.from({length:60},()=>`<line x1="${Math.random()*400|0}" y1="${Math.random()*300|0}" x2="${Math.random()*400|0}" y2="${Math.random()*300+10|0}" stroke="#446" stroke-width="1" opacity=".4"/>`).join('')}`,
@@ -896,7 +896,7 @@ LT.Comic = (() => {
     { svg:`<rect width="400" height="300" fill="#000"/><path d="M180 260 Q170 200 175 150 L225 150 Q230 200 220 260 Z" fill="#150505"/><ellipse cx="200" cy="130" rx="22" ry="28" fill="#1a0808"/>`,
       text:`Sesosok bayangan berdiri di ujung lorong. Tidak bergerak. Aku berkedip... dan bayangan itu menghilang.` },
     { svg:`<rect width="400" height="300" fill="#0a0000"/><text x="200" y="130" fill="#a01414" font-size="24" font-family="monospace" text-anchor="middle" letter-spacing="4">LANTAI</text><text x="200" y="170" fill="#a01414" font-size="24" font-family="monospace" text-anchor="middle" letter-spacing="4">TERLARANG</text><text x="200" y="205" fill="#666" font-size="11" font-family="monospace" text-anchor="middle">CHAPTER 1 — PENGHUNI TERAKHIR</text>`,
-      text:`Aku harus menemukan Dita. Apa pun yang terjadi.` }
+      text:`Aku harus menemukan Yura. Apa pun yang terjadi.` }
   ];
   let idx = 0;
   function render(){
@@ -1027,7 +1027,7 @@ LT.Game = (() => {
     LT.Audio.startDrone(50, .12);
     LT.Audio.startTensionMusic();
     $('#hudObjective').style.display='block';
-    setObjective('Cari Dita. Cari petunjuk di lobi.');
+    setObjective('Cari Yura. Cari petunjuk di lobi.');
     if(!LT.Puzzles.flags.firstEntered){
       LT.Puzzles.flags.firstEntered = true;
     }
@@ -1364,7 +1364,7 @@ LT.Game = (() => {
     const steps = [
       { t:'Ruangan itu ternyata ada di lantai 4. Lantai yang menurut arsip resmi "tidak pernah ada".', d:3200 },
       { t:'Kamu menemukan foto lama — wajahmu terpampang di sana. Bertanggal dua tahun dari sekarang.', d:3200 },
-      { t:'Rekaman suara Dita memenuhi ruangan: "Jangan percaya pintu keluar."', d:3000 },
+      { t:'Rekaman suara Yura memenuhi ruangan: "Jangan percaya pintu keluar."', d:3000 },
       { t:'Saat kamu berbalik, semua lampu padam. Suara langkah kaki terdengar dari arah yang barusan kamu periksa.', d:3400 },
       { t:'Kamu berlari ke pintu keluar. Kamu membukanya. Yang kamu temukan: lorong apartemen yang sama. Tidak ada jalan keluar.', d:3800 },
       { t:'Di ujung lorong, sesosok bayangan berdiri. Tidak bergerak. Ketika kamu mendekat, lampu berkedip — dan sosok itu menghilang.', d:3800 },
