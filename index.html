@@ -4,7 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#000">
-<title>Lantai Terlarang — Chapter 1</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Forbidden Floor">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Forbidden Floor — Chapter 1</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;}
 html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Courier New',monospace;color:#c9c9c9;touch-action:none;}
@@ -150,7 +157,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Co
 <div id="loading" class="screen active">
   <div class="fog"></div><div class="noise"></div>
   <div class="loading-content">
-    <div class="logo">LANTAI TERLARANG</div>
+    <div class="logo">FORBIDDEN FLOOR</div>
     <div class="logo-sub">CHAPTER 1 — PENGHUNI TERAKHIR</div>
     <div class="foto-row">
       <div class="foto-frame"><img src="assets/images/foto_pemain.jpg" onerror="this.style.display='none';this.parentNode.style.background='#1a1a1a';this.parentNode.insertAdjacentHTML('beforeend','<div style=\'position:absolute;inset:0;display:flex;justify-content:center;align-items:center;color:#555;font-size:9px;text-align:center;padding:6px;\'>FOTO<br>PEMAIN</div>')"><div class="foto-label">R.</div></div>
@@ -168,7 +175,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Co
   <div class="menu-bg"><div class="building"></div><div class="rain" id="rainLayer"></div></div>
   <button class="btn-settings" id="menuSettingsBtn">⚙</button>
   <div class="menu-content">
-    <div class="menu-title">LANTAI TERLARANG</div>
+    <div class="menu-title">FORBIDDEN FLOOR</div>
     <div class="menu-chapter">CHAPTER 1 — PENGHUNI TERAKHIR</div>
     <button class="btn" id="btnStart">▶ MULAI GAME</button>
     <button class="btn" id="btnContinue" style="display:none;">↻ LANJUTKAN</button>
@@ -227,7 +234,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Co
 <div id="ending" class="screen">
   <div class="ending-text" id="endingLine"></div>
   <div class="ending-title" id="endingTitle">
-    <h1>LANTAI TERLARANG</h1>
+    <h1>FORBIDDEN FLOOR</h1>
     <h2>CHAPTER 1: PENGHUNI TERAKHIR</h2>
     <div class="sub">"Peristiwa ini belum berakhir."</div>
     <div class="cont">BERSAMBUNG...</div>
@@ -237,7 +244,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Co
 <!-- CREDITS -->
 <div id="credits" class="screen">
   <div class="credits-inner">
-    <h1>LANTAI TERLARANG</h1>
+    <h1>FORBIDDEN FLOOR</h1>
     <h2>CHAPTER 1: PENGHUNI TERAKHIR</h2>
     <div class="sec"><div class="role">CREATED BY</div><div class="name">[NAMA PEMBUAT]</div></div>
     <div class="sec"><div class="role">STORY & CONCEPT</div><div class="name">[NAMA PEMBUAT]</div></div>
@@ -1601,6 +1608,13 @@ window.addEventListener('keydown', e=>{
 });
 
 })();
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('./sw.js').catch(function(e){console.warn('SW gagal:',e);});
+  });
+}
 </script>
 </body>
 </html>
